@@ -1,2 +1,11 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import TodoList from "$lib/components/TodoList.svelte";
+
+	export let data;
+
+	$: ({ todos } = data);
+</script>
+
+<h2 class="mb-4 font-extrabold uppercase text-slate-500">Todos</h2>
+
+<TodoList {todos} />
