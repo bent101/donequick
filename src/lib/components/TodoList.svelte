@@ -1,14 +1,20 @@
 <script lang="ts">
-	import type { CollectionStore, WithRefAndId } from "$lib/firebase";
+	import { newBatch, type CollectionStore, type WithRefAndId } from "$lib/firebase";
 	import { createTodo, type Todo } from "$lib/todos";
-	import { flip } from "svelte/animate";
-	import Todo_ from "./Todo_.svelte";
-	import { writable } from "svelte/store";
 	import { LexoRank } from "lexorank";
+	import { flip } from "svelte/animate";
+	import { writable } from "svelte/store";
+	import Todo_ from "./Todo_.svelte";
+	import { writeBatch } from "firebase/firestore";
 
+	export let name = "Todos";
 	export let todos: CollectionStore<Todo>;
 
-	$: sortedTodos = [...$todos].sort((a, b) => a.rank.localeCompare(b.rank));
+	let hideCompleted = false;
+
+	$: sortedTodos = [...$todos]
+		.filter((todo) => (hideCompleted ? !todo.done : true))
+		.sort((a, b) => a.rank.localeCompare(b.rank));
 
 	const fakeTodo = createTodo("", "");
 	let fakeTodoIndex = writable($todos.length);
@@ -65,9 +71,32 @@
 
 		todos.add(createTodo(content, rank.format()));
 	}
+
+	function clearCompleted() {
+		const batch = newBatch();
+		$todos.forEach((todo) => {
+			if (todo.done) batch.delete(todo.ref);
+		});
+		batch.commit();
+	}
 </script>
 
 <svelte:window on:keydown={onWindowKeydown} />
+
+<div class="mb-4 flex items-center">
+	<h2 class="flex-1 font-extrabold uppercase text-slate-500">{name}</h2>
+	{#if !hideCompleted}
+		<button
+			on:click={clearCompleted}
+			class="mx-4 rounded-full bg-slate-100 px-4 text-slate-400 hover:bg-slate-200 hover:text-slate-600"
+			>Clear completed</button
+		>
+	{/if}
+	<label class="cursor-pointer">
+		<span class="mr-2 text-slate-400">Hide completed</span>
+		<input bind:checked={hideCompleted} type="checkbox" class="" />
+	</label>
+</div>
 
 <ul>
 	{#each todosWithFake as todo, index ("id" in todo ? todo.id : -1)}

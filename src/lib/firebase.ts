@@ -17,6 +17,7 @@ import {
 	setDoc,
 	updateDoc,
 	type DocumentData,
+	writeBatch,
 } from "firebase/firestore";
 import { writable, type Writable } from "svelte/store";
 
@@ -48,6 +49,10 @@ export const auth = getAuth(app);
 // 		return unsubscribe;
 // 	});
 // }
+
+export function newBatch() {
+	return writeBatch(db);
+}
 
 export async function signIn() {
 	await signInWithRedirect(auth, new GoogleAuthProvider());
