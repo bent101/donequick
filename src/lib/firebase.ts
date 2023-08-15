@@ -1,9 +1,10 @@
 // import { getAnalytics } from "firebase/analytics";
 
 import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, getAuth, signInWithRedirect } from "firebase/auth";
+import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithRedirect } from "firebase/auth";
 import {
 	DocumentSnapshot,
+	QueryConstraint,
 	QueryDocumentSnapshot,
 	QuerySnapshot,
 	addDoc,
@@ -14,12 +15,15 @@ import {
 	getDocs,
 	getFirestore,
 	onSnapshot,
+	query,
 	setDoc,
 	updateDoc,
-	type DocumentData,
 	writeBatch,
+	type DocumentData,
+	DocumentReference,
+	CollectionReference,
 } from "firebase/firestore";
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -36,19 +40,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+export const db = getFirestore(app);
 export const auth = getAuth(app);
 
 // export const analytics = getAnalytics(app);
-
-// export async function getUserStore() {
-// 	await auth.authStateReady();
-
-// 	return writable(auth.currentUser, (set) => {
-// 		const unsubscribe = onAuthStateChanged(auth, (user) => set(user));
-// 		return unsubscribe;
-// 	});
-// }
 
 export function newBatch() {
 	return writeBatch(db);
@@ -57,10 +52,8 @@ export function newBatch() {
 export async function signIn() {
 	await signInWithRedirect(auth, new GoogleAuthProvider());
 	await auth.authStateReady();
-}
-
-export async function signOut() {
-	await auth.signOut();
+	if (!auth.currentUser) throw new Error("failed to sign in");
+	return auth.currentUser;
 }
 
 export type WithRefAndId<T> = T & { ref: DocumentSnapshot["ref"]; id: DocumentSnapshot["id"] };
@@ -87,7 +80,7 @@ export type DocStore<T> = {
 export async function getDocStore<T extends DocumentData>(path: string): Promise<DocStore<T>> {
 	const ref = doc(db, path);
 
-	const curVal = (await getDoc(ref).then((snapshot) => formatDoc<T>(snapshot))) ?? {};
+	const curVal = await getDoc(ref).then((snapshot) => formatDoc<T>(snapshot));
 
 	const { subscribe } = writable(curVal, (set) => {
 		const unsubscribe = onSnapshot(ref, (snapshot) => {
@@ -113,37 +106,33 @@ export async function getDocStore<T extends DocumentData>(path: string): Promise
 	};
 }
 
-export type CollectionStore<T> = {
-	add(val: T): void;
+export type CollectionStore<T extends DocumentData> = {
+	add(val: T): Promise<DocumentReference<DocumentData, DocumentData>>;
+	ref: CollectionReference<DocumentData, DocumentData>;
 	subscribe: Writable<WithRefAndId<T>[]>["subscribe"];
 };
 
 export async function getCollectionStore<T extends DocumentData>(
-	path: string
+	path: string,
+	...queryConstraints: QueryConstraint[]
 ): Promise<CollectionStore<T>> {
 	const ref = collection(db, path);
+	const queryRef = query(ref, ...queryConstraints);
 
-	const curVal = await getDocs(ref).then((snapshot) => formatCollection<T>(snapshot));
+	const curVal = await getDocs(queryRef).then((snapshot) => formatCollection<T>(snapshot));
 
 	const { subscribe } = writable(curVal, (set) => {
-		const unsubscribe = onSnapshot(ref, (snapshot) => {
+		const unsubscribe = onSnapshot(queryRef, (snapshot) => {
 			set(formatCollection<T>(snapshot));
 		});
 		return unsubscribe;
 	});
 
 	return {
-		add(val: T) {
-			addDoc(ref, val);
+		async add(val: T) {
+			return await addDoc(ref, val);
 		},
+		ref,
 		subscribe,
 	};
-}
-
-export async function getUserDocStore<T extends DocumentData>(path: string) {
-	return await getDocStore<T>(`users/${auth.currentUser!.uid}/${path}`);
-}
-
-export async function getUserCollectionStore<T extends DocumentData>(path: string) {
-	return await getCollectionStore<T>(`users/${auth.currentUser!.uid}/${path}`);
 }
