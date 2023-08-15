@@ -18,7 +18,7 @@
 	$: title = $meta?.name ?? "Todos";
 	$: titleInput = title;
 
-	const hideCompleted = persisted("hideCompleted", false);
+	const hideCompleted = persisted("hideCompleted", true);
 
 	$: sortedTodos = [...$todos]
 		.filter((todo) => ($hideCompleted ? !todo.done : true))

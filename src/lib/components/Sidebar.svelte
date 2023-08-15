@@ -3,7 +3,9 @@
 	import { page } from "$app/stores";
 	import { db, type CollectionStore } from "$lib/firebase";
 	import { createTodoList, type TodoList } from "$lib/todos";
+	import { removeDuplicatesBy } from "$lib/utils";
 	import { doc, setDoc, updateDoc } from "firebase/firestore";
+	import { list } from "postcss";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
 	import { flip } from "svelte/animate";
 
@@ -17,6 +19,8 @@
 		{ name: "Shared with me", id: "1" } as const,
 		...$sharedWithMe,
 	];
+
+	$: filteredLists = removeDuplicatesBy(listsWithFakeAndHeader, (list) => list.id);
 
 	async function createNewList() {
 		const id = crypto.randomUUID();
@@ -33,7 +37,7 @@
 		My Lists
 	</h2>
 	<div class="mr-8">
-		{#each listsWithFakeAndHeader as list (list.id)}
+		{#each filteredLists as list (list.id)}
 			{@const selected = $page.params.listId === list.id ?? ""}
 			<!-- transition:fly={{ duration: 300, x: -200, delay: 100 * i }} -->
 			<div animate:flip={{ duration: 300 }}>
@@ -60,8 +64,12 @@
 									await goto("/");
 
 									if (currentUserUid === list.owner) {
-										list.owner = list.invitees[0];
-										list.invitees = list.invitees.slice(1);
+										if (list.invitees.length === 0) {
+											list.owner = "";
+										} else {
+											list.owner = list.invitees[0];
+											list.invitees = list.invitees.slice(1);
+										}
 									} else {
 										list.invitees = list.invitees.filter((invitee) => invitee !== currentUserUid);
 									}
