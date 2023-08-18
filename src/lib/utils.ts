@@ -12,3 +12,9 @@ export function removeDuplicatesBy<T, K>(array: T[], getKey: (item: T) => K): T[
 
 	return uniqueArray;
 }
+
+const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+export function isEmail(str: string) {
+	return emailRegex.test(str);
+}

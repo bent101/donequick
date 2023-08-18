@@ -7,7 +7,7 @@
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	export let data;
 
-	$: ({ myLists, sharedWithMe, user } = data);
+	$: ({ lists, user } = data);
 
 	// if the user changes, reload everything that depends on it
 	const unsub = onAuthStateChanged(auth, () => {
@@ -17,8 +17,8 @@
 	onDestroy(unsub);
 </script>
 
-<div class="flex h-screen flex-col">
-	<header class="z-20 flex h-20 w-full select-none items-center gap-4 bg-white p-4 shadow-lg">
+<div class="flex h-screen select-none flex-col selection:!bg-blue-500 selection:!text-white">
+	<header class="z-20 flex h-20 w-full items-center gap-4 bg-white p-4 shadow-lg">
 		<h1 class="ml-6 mr-auto font-serif text-3xl font-extrabold text-slate-700">
 			<a href="/">donequick</a>
 		</h1>
@@ -32,8 +32,8 @@
 	</header>
 
 	<div class="flex flex-1 overflow-clip">
-		<Sidebar currentUserUid={user.uid} {myLists} {sharedWithMe} />
-		<main class="max-w-3xl flex-1 p-8">
+		<Sidebar userId={user.uid} {lists} />
+		<main class="max-w-4xl flex-1 p-8">
 			<slot />
 		</main>
 	</div>

@@ -9,7 +9,7 @@
 	export let todo: WithRefAndId<Todo> | Todo;
 	export let index: number;
 	export let focusedTodoIndex: Writable<number>;
-	export let fakeTodoIndex: Writable<number>;
+	export let blankTodoIndex: Writable<number>;
 	export let todoListLen: number;
 
 	let inputEl: HTMLInputElement | undefined;
@@ -45,6 +45,7 @@
 	function deleteTodo() {
 		if ("ref" in todo) {
 			deleteDoc(todo.ref);
+			dispatch("updated");
 		} else {
 			input = "";
 			todo.content = "";
@@ -64,8 +65,8 @@
 				onInputBlur();
 			}
 
-			$fakeTodoIndex = index + (event.shiftKey ? (justAdded ? 0 : input === "" ? -1 : 0) : 1);
-			$focusedTodoIndex = $fakeTodoIndex;
+			$blankTodoIndex = index + (event.shiftKey ? (justAdded ? 0 : input === "" ? -1 : 0) : 1);
+			$focusedTodoIndex = $blankTodoIndex;
 		}
 		if (key === "Tab") {
 			// TODO: handle tab and shift tab
@@ -82,7 +83,7 @@
 		inputIsFocused = false;
 
 		if ($focusedTodoIndex === index) {
-			$fakeTodoIndex = justAddedATodo() ? todoListLen : todoListLen - 1;
+			$blankTodoIndex = justAddedATodo() ? todoListLen : todoListLen - 1;
 			$focusedTodoIndex = -1;
 		}
 
@@ -93,12 +94,15 @@
 				// dont allow empty todos (reverts to previous value)
 				input = todo.content;
 			}
-		} else {
+		} else if (input !== todo.content) {
 			if ("ref" in todo) {
 				todo.content = input;
 				updateDoc(todo.ref, { content: todo.content });
+				dispatch("updated");
 			} else {
 				dispatch("newtodo", { content: input, index });
+				dispatch("updated");
+
 				input = "";
 			}
 		}
@@ -132,6 +136,7 @@
 			if ("ref" in todo) {
 				todo.done = !todo.done;
 				updateDoc(todo.ref, { done: todo.done });
+				dispatch("updated");
 			}
 		}}
 	>

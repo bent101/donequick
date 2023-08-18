@@ -1,16 +1,26 @@
-import { auth } from "./firebase";
+import { serverTimestamp, type FieldValue } from "firebase/firestore";
+import { auth, getUserSummary, type UserSummary } from "./firebase";
 
+/**
+ * todo list metadata
+ */
 export type TodoList = {
 	name: string;
-	owner: string;
-	invitees: string[];
+	ownerId: string;
+	memberIds: string[];
+	members: UserSummary[];
+	updatedAt: FieldValue;
 };
 
 export function createTodoList(): TodoList {
+	const user = auth.currentUser;
+	if (!user) throw new Error("sign in to create a list");
 	return {
 		name: "Untitled list",
-		owner: auth.currentUser!.uid,
-		invitees: [],
+		ownerId: user.uid,
+		memberIds: [user.uid],
+		members: [getUserSummary(user)],
+		updatedAt: serverTimestamp(),
 	};
 }
 

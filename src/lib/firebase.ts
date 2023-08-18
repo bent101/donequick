@@ -1,29 +1,31 @@
 // import { getAnalytics } from "firebase/analytics";
 
+import anon from "$lib/assets/images/anon.jpeg";
 import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithRedirect } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, type User } from "firebase/auth";
 import {
-	DocumentSnapshot,
-	QueryConstraint,
-	QueryDocumentSnapshot,
-	QuerySnapshot,
 	addDoc,
 	collection,
+	CollectionReference,
 	deleteDoc,
 	doc,
+	DocumentReference,
+	DocumentSnapshot,
 	getDoc,
 	getDocs,
 	getFirestore,
 	onSnapshot,
 	query,
+	QueryConstraint,
+	QueryDocumentSnapshot,
+	QuerySnapshot,
 	setDoc,
 	updateDoc,
 	writeBatch,
 	type DocumentData,
-	DocumentReference,
-	CollectionReference,
 } from "firebase/firestore";
-import { get, writable, type Writable } from "svelte/store";
+
+import { writable, type Writable } from "svelte/store";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -49,11 +51,39 @@ export function newBatch() {
 	return writeBatch(db);
 }
 
+export async function deleteCollection(path: string) {
+	const batch = newBatch();
+	await getDocs(collection(db, path)).then((res) =>
+		res.docs.forEach((doc) => {
+			batch.delete(doc.ref);
+		})
+	);
+	await batch.commit();
+}
+
+export type UserSummary = {
+	name: string;
+	email: string;
+	photoURL: string;
+	id: string;
+};
+
+export function getUserSummary(user: User): UserSummary {
+	const { displayName, uid, photoURL, email } = user;
+
+	return {
+		name: displayName ?? "[anonymous user]",
+		email: email ?? "",
+		photoURL: photoURL ?? anon,
+		id: uid,
+	};
+}
+
 export async function signIn() {
-	await signInWithRedirect(auth, new GoogleAuthProvider());
-	await auth.authStateReady();
+	await signInWithPopup(auth, new GoogleAuthProvider());
 	if (!auth.currentUser) throw new Error("failed to sign in");
-	return auth.currentUser;
+
+	setDoc(doc(db, `users/${auth.currentUser.uid}`), getUserSummary(auth.currentUser));
 }
 
 export type WithRefAndId<T> = T & { ref: DocumentSnapshot["ref"]; id: DocumentSnapshot["id"] };
@@ -75,6 +105,7 @@ export type DocStore<T> = {
 	update(val: T): void;
 	delete(): void;
 	subscribe: Writable<WithRefAndId<T>>["subscribe"];
+	ref: DocumentReference<DocumentData, DocumentData>;
 };
 
 export async function getDocStore<T extends DocumentData>(path: string): Promise<DocStore<T>> {
@@ -103,13 +134,14 @@ export async function getDocStore<T extends DocumentData>(path: string): Promise
 			deleteDoc(ref);
 		},
 		subscribe,
+		ref,
 	};
 }
 
 export type CollectionStore<T extends DocumentData> = {
 	add(val: T): Promise<DocumentReference<DocumentData, DocumentData>>;
-	ref: CollectionReference<DocumentData, DocumentData>;
 	subscribe: Writable<WithRefAndId<T>[]>["subscribe"];
+	ref: CollectionReference<DocumentData, DocumentData>;
 };
 
 export async function getCollectionStore<T extends DocumentData>(
@@ -132,7 +164,7 @@ export async function getCollectionStore<T extends DocumentData>(
 		async add(val: T) {
 			return await addDoc(ref, val);
 		},
-		ref,
 		subscribe,
+		ref,
 	};
 }

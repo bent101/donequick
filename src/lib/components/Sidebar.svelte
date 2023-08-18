@@ -1,26 +1,17 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
-	import { db, type CollectionStore } from "$lib/firebase";
+	import { db, type CollectionStore, deleteCollection } from "$lib/firebase";
 	import { createTodoList, type TodoList } from "$lib/todos";
 	import { removeDuplicatesBy } from "$lib/utils";
-	import { doc, setDoc, updateDoc } from "firebase/firestore";
-	import { list } from "postcss";
+	import { deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
 	import { flip } from "svelte/animate";
 
-	export let myLists: CollectionStore<TodoList>;
-	export let sharedWithMe: CollectionStore<TodoList>;
-	export let currentUserUid: string;
+	export let lists: CollectionStore<TodoList>;
+	export let userId: string;
 
-	$: listsWithFakeAndHeader = [
-		{ name: "Todos", id: undefined } as const,
-		...$myLists,
-		{ name: "Shared with me", id: "1" } as const,
-		...$sharedWithMe,
-	];
-
-	$: filteredLists = removeDuplicatesBy(listsWithFakeAndHeader, (list) => list.id);
+	$: listsWithTodos = [{ name: "Todos", id: undefined } as const, ...$lists];
 
 	async function createNewList() {
 		const id = crypto.randomUUID();
@@ -28,22 +19,46 @@
 		setDoc(doc(db, `lists/${id}`), createTodoList());
 	}
 
+	async function deleteList(list: (typeof listsWithTodos)[number]) {
+		if (!("ownerId" in list)) return;
+
+		await goto("/", { replaceState: true });
+
+		list.memberIds = list.memberIds.filter((id) => id !== userId);
+		list.members = list.members.filter((member) => member.id !== userId);
+
+		if (userId === list.ownerId) {
+			if (list.members.length === 0) {
+				deleteDoc(list.ref);
+				deleteCollection(`lists/${list.id}/todos`);
+			} else {
+				list.ownerId = list.memberIds[0];
+			}
+		}
+
+		updateDoc(list.ref, {
+			owner: list.ownerId,
+			memberIds: list.memberIds,
+			members: list.members,
+		});
+	}
+
 	// let mounted = false;
 	// onMount(() => (mounted = true));
 </script>
 
-<aside class="w-96 select-none overflow-y-scroll bg-slate-200 pb-32 pt-8">
+<aside class="w-96 overflow-y-scroll bg-slate-200 pb-32 pt-8">
 	<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-slate-500/80">
 		My Lists
 	</h2>
 	<div class="mr-8">
-		{#each filteredLists as list (list.id)}
+		{#each listsWithTodos as list (list.id)}
 			{@const selected = $page.params.listId === list.id ?? ""}
 			<!-- transition:fly={{ duration: 300, x: -200, delay: 100 * i }} -->
 			<div animate:flip={{ duration: 300 }}>
-				{#if list.name === "Shared with me"}
+				{#if list.name === "Shared"}
 					<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-slate-500/80">
-						Shared with me
+						Shared
 					</h2>
 				{:else}
 					<div
@@ -56,29 +71,9 @@
 						>
 							{list.name}
 						</a>
-						{#if "owner" in list}
+						{#if "ownerId" in list}
 							<button
-								on:click={async function deleteList() {
-									if (!("owner" in list)) return; // tell typescript about the {#if}
-
-									await goto("/");
-
-									if (currentUserUid === list.owner) {
-										if (list.invitees.length === 0) {
-											list.owner = "";
-										} else {
-											list.owner = list.invitees[0];
-											list.invitees = list.invitees.slice(1);
-										}
-									} else {
-										list.invitees = list.invitees.filter((invitee) => invitee !== currentUserUid);
-									}
-
-									updateDoc(list.ref, {
-										owner: list.owner,
-										invitees: list.invitees,
-									});
-								}}
+								on:click={() => deleteList(list)}
 								class="invisible mr-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full group-hover:visible
 						{selected ? 'hover:bg-slate-200/20' : 'hover:bg-slate-600/20'}"
 							>

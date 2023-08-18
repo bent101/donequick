@@ -1,11 +1,10 @@
 import { auth, getCollectionStore, signIn } from "$lib/firebase";
 import type { TodoList } from "$lib/todos";
-import { where } from "firebase/firestore";
-import type { LayoutLoad } from "./$types";
+import { orderBy, where } from "firebase/firestore";
 
 export const ssr = false;
 
-export const load: LayoutLoad = async ({ depends }) => {
+export async function load({ depends }) {
 	depends("firebase:auth");
 
 	await auth.authStateReady();
@@ -21,10 +20,10 @@ export const load: LayoutLoad = async ({ depends }) => {
 
 	return {
 		user,
-		myLists: getCollectionStore<TodoList>("lists", where("owner", "==", user.uid)),
-		sharedWithMe: getCollectionStore<TodoList>(
+		lists: getCollectionStore<TodoList>(
 			"lists",
-			where("invitees", "array-contains", user.uid)
+			where("memberIds", "array-contains", user.uid),
+			orderBy("updatedAt", "desc")
 		),
 	};
-};
+}
