@@ -4,4 +4,4 @@
 	export let data;
 </script>
 
-<TodoList_ userId={data.user.uid} todos={data.todos} meta={data.todoList} />
+<TodoList_ user={data.user} todos={data.todos} meta={data.todoList} />

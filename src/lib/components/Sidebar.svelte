@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
-	import { db, type CollectionStore, deleteCollection } from "$lib/firebase";
+	import { db, type CollectionStore } from "$lib/firebase";
 	import { createTodoList, type TodoList } from "$lib/todos";
-	import { removeDuplicatesBy } from "$lib/utils";
 	import { deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
 	import { flip } from "svelte/animate";
@@ -14,9 +13,10 @@
 	$: listsWithTodos = [{ name: "Todos", id: undefined } as const, ...$lists];
 
 	async function createNewList() {
+		// generate id client-side to take advatange of optimistic updates
 		const id = crypto.randomUUID();
-		await goto(`/${id}`);
-		setDoc(doc(db, `lists/${id}`), createTodoList());
+		await setDoc(doc(db, `lists/${id}`), createTodoList());
+		goto(`/${id}`);
 	}
 
 	async function deleteList(list: (typeof listsWithTodos)[number]) {
@@ -29,8 +29,8 @@
 
 		if (userId === list.ownerId) {
 			if (list.members.length === 0) {
-				deleteDoc(list.ref);
-				deleteCollection(`lists/${list.id}/todos`);
+				// deleteDoc(list.ref);
+				// deleteCollection(`lists/${list.id}/todos`);
 			} else {
 				list.ownerId = list.memberIds[0];
 			}

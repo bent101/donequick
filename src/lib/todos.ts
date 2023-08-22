@@ -37,3 +37,9 @@ export function createTodo(content: string, rank: string): Todo {
 		done: false,
 	};
 }
+
+export type Cursor = {
+	rank: string;
+	userId: string;
+	listId: string;
+};

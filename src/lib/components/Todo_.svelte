@@ -148,7 +148,7 @@
 			/>
 		{:else}
 			<PlusIcon
-				class="h-full cursor-default text-slate-300 group-[&:has(>input:focus)]:text-slate-400"
+				class="h-full cursor-default text-slate-300 group-[&:has(>input:focus)]:text-transparent"
 			/>
 		{/if}
 	</button>

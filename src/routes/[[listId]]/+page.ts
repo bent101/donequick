@@ -2,8 +2,10 @@ import { auth, getCollectionStore, getDocStore } from "$lib/firebase";
 import type { Todo, TodoList } from "$lib/todos";
 import { orderBy } from "firebase/firestore";
 
-export async function load({ params, parent }) {
-	const { user } = await parent();
+export async function load({ params }) {
+	await auth.authStateReady();
+
+	const user = auth.currentUser!;
 
 	return {
 		todoList: params.listId ? getDocStore<TodoList>(`lists/${params.listId}`) : null,

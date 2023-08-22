@@ -23,6 +23,7 @@ import {
 	updateDoc,
 	writeBatch,
 	type DocumentData,
+	snapshotEqual,
 } from "firebase/firestore";
 
 import { writable, type Writable } from "svelte/store";
@@ -96,7 +97,7 @@ function formatDoc<T>(snapshot: DocumentSnapshot | QueryDocumentSnapshot) {
 	} as WithRefAndId<T>;
 }
 
-function formatCollection<T>(snapshot: QuerySnapshot) {
+function formatDocs<T>(snapshot: QuerySnapshot) {
 	return snapshot.docs.map((doc) => formatDoc<T>(doc));
 }
 
@@ -111,11 +112,17 @@ export type DocStore<T> = {
 export async function getDocStore<T extends DocumentData>(path: string): Promise<DocStore<T>> {
 	const ref = doc(db, path);
 
-	const curVal = await getDoc(ref).then((snapshot) => formatDoc<T>(snapshot));
+	const curSnapshot = await getDoc(ref);
+	const curVal = formatDoc<T>(curSnapshot);
 
 	const { subscribe } = writable(curVal, (set) => {
+		let prevSnapshot = curSnapshot;
 		const unsubscribe = onSnapshot(ref, (snapshot) => {
-			set(formatDoc<T>(snapshot));
+			// avoid unnecessary sets, fixes jank with svelte animations
+			if (!snapshotEqual(prevSnapshot, snapshot)) {
+				set(formatDoc(snapshot));
+				prevSnapshot = snapshot;
+			}
 		});
 		return unsubscribe;
 	});
@@ -151,11 +158,17 @@ export async function getCollectionStore<T extends DocumentData>(
 	const ref = collection(db, path);
 	const queryRef = query(ref, ...queryConstraints);
 
-	const curVal = await getDocs(queryRef).then((snapshot) => formatCollection<T>(snapshot));
+	const curSnapshot = await getDocs(queryRef);
+	const curVal = formatDocs<T>(curSnapshot);
 
 	const { subscribe } = writable(curVal, (set) => {
+		let prevSnapshot = curSnapshot;
 		const unsubscribe = onSnapshot(queryRef, (snapshot) => {
-			set(formatCollection<T>(snapshot));
+			// avoid unnecessary sets, fixes jank with svelte animations
+			if (!snapshotEqual(prevSnapshot, snapshot)) {
+				set(formatDocs(snapshot));
+				prevSnapshot = snapshot;
+			}
 		});
 		return unsubscribe;
 	});
