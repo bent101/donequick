@@ -47,13 +47,15 @@ export function createTodoList(): TodoList {
 export type Todo = {
 	content: string;
 	rank: string;
+	indent: number;
 	done: boolean;
 };
 
-export function createTodo(content: string, rank: string): Todo {
+export function createTodo(content: string, rank: string, indent: number): Todo {
 	return {
 		content,
 		rank,
+		indent,
 		done: false,
 	};
 }

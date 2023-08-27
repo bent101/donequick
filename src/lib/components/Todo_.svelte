@@ -12,6 +12,7 @@
 
 	let inputEl: HTMLInputElement | undefined;
 	let checkButton: HTMLElement | undefined;
+	let self: HTMLElement | undefined;
 
 	let input = todo.content; // bound to <input>
 
@@ -21,6 +22,7 @@
 		} else {
 			inputEl?.focus();
 		}
+		self?.scrollIntoView();
 	} else {
 		inputEl?.blur();
 	}
@@ -56,15 +58,21 @@
 			inputEl?.blur();
 		}
 
-		const justAdded = justAddedATodo();
-
 		if (key === "Enter") {
 			if (!("ref" in todo)) {
 				submitTodo();
 			}
 		} else if (key === "Tab") {
-			// TODO: handle tab and shift tab
 			event.preventDefault();
+			let nextIndent = todo.indent + (event.shiftKey ? -1 : 1);
+			nextIndent = Math.max(Math.min(nextIndent, 6), 0);
+			if (nextIndent !== todo.indent) {
+				todo.indent = nextIndent;
+				if ("ref" in todo) {
+					updateDoc(todo.ref, { indent: todo.indent });
+					dispatch("updated");
+				}
+			}
 		}
 	}
 
@@ -97,7 +105,7 @@
 				updateDoc(todo.ref, { content: todo.content });
 				dispatch("updated");
 			} else {
-				dispatch("newtodo", { content: input });
+				dispatch("newtodo", { content: input, indent: todo.indent });
 				dispatch("updated");
 
 				input = "";
@@ -105,23 +113,26 @@
 		}
 	}
 
-	function justAddedATodo() {
-		return !("ref" in todo) && input !== "";
-	}
+	// function justAddedATodo() {
+	// 	return !("ref" in todo) && input !== "";
+	// }
 </script>
 
 <button
+	bind:this={self}
 	on:click={() => {
 		if (!("ref" in todo)) {
 			inputEl?.focus();
 		}
 	}}
-	class="group flex h-8 w-full cursor-default items-stretch gap-2 rounded-full px-2 transition-shadow duration-100 [&:has(>.moveicon:enabled:active)]:bg-slate-200 [&:has(>.moveicon:enabled:active)]:shadow-md [&:has(>.moveicon:enabled:active)]:shadow-slate-900/30 [&:has(>input:focus)]:bg-slate-100"
+	style="margin-left: {2.5 * todo.indent}rem; transition-property: margin-left; duration: 100;"
+	class="group flex h-8 cursor-default scroll-m-8 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100 [&:has(>#moveicon:enabled:active)]:bg-slate-200 [&:has(>#moveicon:enabled:active)]:shadow-md [&:has(>#moveicon:enabled:active)]:shadow-slate-900/30 [&:has(>input:focus)]:bg-slate-100"
 >
 	<button
 		tabindex="-1"
 		disabled={!("ref" in todo)}
-		class="moveicon text-transparent enabled:cursor-grab enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
+		id="moveicon"
+		class="text-transparent enabled:cursor-grab enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
 	>
 		<MoveIcon />
 	</button>

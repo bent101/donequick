@@ -17,7 +17,9 @@
 	onDestroy(unsub);
 </script>
 
-<div class="flex h-screen select-none flex-col selection:!bg-blue-500 selection:!text-white">
+<div
+	class="flex h-screen select-none flex-col items-stretch selection:!bg-blue-500 selection:!text-white"
+>
 	<header class="z-20 flex h-20 w-full items-center gap-4 bg-white p-4 shadow-lg">
 		<h1 class="ml-6 mr-auto font-serif text-3xl font-extrabold text-slate-700">
 			<a href="/">donequick</a>
@@ -33,8 +35,10 @@
 
 	<div class="flex flex-1 overflow-clip">
 		<Sidebar userId={user.uid} {lists} />
-		<main class="max-w-4xl flex-1 p-8">
-			<slot />
+		<main class="flex-1 overflow-y-scroll p-8">
+			<div class="max-w-4xl">
+				<slot />
+			</div>
 		</main>
 	</div>
 </div>

@@ -55,6 +55,7 @@
 		rank: getLastRank(),
 		done: false,
 		id: "blank",
+		indent: 0,
 	};
 
 	afterNavigate(() => {
@@ -121,25 +122,26 @@
 				return;
 			}
 
-			const focusedTodoRank = todosWithBlank[i]!.rank;
+			const focusedTodo = todosWithBlank[i]!;
 
 			const neighbor = todosWithBlank[i + (event.shiftKey ? -1 : 1)];
 			const newRank = neighbor
-				? LexoRank.parse(focusedTodoRank).between(LexoRank.parse(neighbor.rank))
+				? LexoRank.parse(focusedTodo.rank).between(LexoRank.parse(neighbor.rank))
 				: i === todosWithBlank.length
 				? LexoRank.parse(blankTodo.rank).genPrev()
 				: LexoRank.parse(blankTodo.rank).genNext();
 
 			blankTodo.rank = newRank.toString();
+			blankTodo.indent = focusedTodo.indent;
 
 			$focusedTodoId = blankTodo.id;
 		}
 	}
 
-	function onNewTodo(event: { detail: { content: string } }) {
-		const { content } = event.detail;
+	function onNewTodo(event: { detail: { content: string; indent: number } }) {
+		const { content, indent } = event.detail;
 
-		todos.add(createTodo(content, blankTodo.rank));
+		todos.add(createTodo(content, blankTodo.rank, indent));
 	}
 
 	function clearCompleted() {
@@ -187,7 +189,7 @@
 
 <ul class="mt-4">
 	{#each todosWithBlank as todo (todo.id)}
-		<li animate:flip={{ duration: 100 }}>
+		<li class="flex flex-col" animate:flip={{ duration: 100 }}>
 			<Todo_
 				{todo}
 				id={todo.id}
