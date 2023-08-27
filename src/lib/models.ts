@@ -1,5 +1,25 @@
 import { serverTimestamp, type FieldValue } from "firebase/firestore";
-import { auth, getUserSummary, type UserSummary } from "./firebase";
+import { auth } from "./firebase";
+import type { User } from "firebase/auth";
+import anon from "$lib/assets/images/anon.jpeg";
+
+export type UserSummary = {
+	name: string;
+	email: string;
+	photoURL: string;
+	id: string;
+};
+
+export function getUserSummary(user: User): UserSummary {
+	const { displayName, uid, photoURL, email } = user;
+
+	return {
+		name: displayName ?? "[anonymous user]",
+		email: email ?? "",
+		photoURL: photoURL ?? anon,
+		id: uid,
+	};
+}
 
 /**
  * todo list metadata
@@ -37,9 +57,3 @@ export function createTodo(content: string, rank: string): Todo {
 		done: false,
 	};
 }
-
-export type Cursor = {
-	rank: string;
-	userId: string;
-	listId: string;
-};

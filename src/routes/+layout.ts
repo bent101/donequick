@@ -1,5 +1,5 @@
 import { auth, getCollectionStore, signIn } from "$lib/firebase";
-import type { TodoList } from "$lib/todos";
+import type { TodoList } from "$lib/models";
 import { orderBy, where } from "firebase/firestore";
 
 export const ssr = false;

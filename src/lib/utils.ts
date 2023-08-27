@@ -18,3 +18,7 @@ const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-
 export function isEmail(str: string) {
 	return emailRegex.test(str);
 }
+
+export async function sleep(ms: number) {
+	await new Promise((res) => setTimeout(res, ms));
+}

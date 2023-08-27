@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { afterNavigate } from "$app/navigation";
 	import type { DocStore } from "$lib/firebase";
-	import type { TodoList } from "$lib/todos";
+	import type { TodoList } from "$lib/models";
+	import { sleep } from "$lib/utils";
 	import { updateDoc } from "firebase/firestore";
 
 	export let meta: DocStore<TodoList> | null;
@@ -9,7 +11,21 @@
 	let titleInput = "";
 
 	$: title = $meta?.name ?? "Todos";
-	$: titleInput = title;
+
+	async function onTitleChanged() {
+		titleInput = title;
+		if (title === "Untitled list") {
+			await sleep(0);
+			titleInputEl?.focus();
+			titleInputEl?.select();
+		}
+	}
+
+	$: title, onTitleChanged();
+
+	$: if (!$meta) {
+		titleInput = "Todos";
+	}
 
 	function onTitleInputBlur() {
 		if (!$meta) {

@@ -2,7 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import { db, type CollectionStore } from "$lib/firebase";
-	import { createTodoList, type TodoList } from "$lib/todos";
+	import { createTodoList, type TodoList } from "$lib/models";
 	import { deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
 	import { flip } from "svelte/animate";

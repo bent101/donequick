@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { UserSummary } from "$lib/firebase";
+	import type { UserSummary } from "$lib/models";
 
 	export let member: UserSummary;
 </script>

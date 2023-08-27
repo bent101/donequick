@@ -5,16 +5,18 @@
 
 	import ShareBtn from "./ShareBtn.svelte";
 
-	import { newBatch, type CollectionStore, type DocStore, type WithRefAndId } from "$lib/firebase";
-	import { createTodo, type Todo, type TodoList } from "$lib/todos";
+	import { newBatch, type CollectionStore, type DocStore } from "$lib/firebase";
+	import { createTodo, type Todo, type TodoList } from "$lib/models";
 	import type { User } from "firebase/auth";
 	import { serverTimestamp, updateDoc } from "firebase/firestore";
 	import { LexoRank } from "lexorank";
 	import { persisted } from "svelte-local-storage-store";
 	import { flip } from "svelte/animate";
-	import { writable } from "svelte/store";
+	import { writable, type Writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
+	import { sleep } from "$lib/utils";
+	import { afterNavigate } from "$app/navigation";
 
 	export let todos: CollectionStore<Todo>;
 	export let meta: DocStore<TodoList> | null;
@@ -36,62 +38,108 @@
 	}
 
 	const hideCompleted = persisted("hideCompleted", true);
+	let filteredTodos = [...$todos].filter((todo) => !($hideCompleted && todo.done));
 	$: filteredTodos = [...$todos].filter((todo) => !($hideCompleted && todo.done));
 
-	const blankTodo = createTodo("", "");
-	const blankTodoIndex = writable($todos.length);
+	function getLastRank() {
+		console.log("getting last rank");
+		if (filteredTodos.length === 0) {
+			return LexoRank.middle().toString();
+		}
+		const last = filteredTodos[filteredTodos.length - 1]!.rank;
+		return LexoRank.parse(last).genNext().toString();
+	}
 
-	$: todosWithBlank = [
-		...filteredTodos.slice(0, $blankTodoIndex),
-		blankTodo,
-		...filteredTodos.slice($blankTodoIndex),
-	] as (Todo | WithRefAndId<Todo>)[];
+	const blankTodo = {
+		content: "",
+		rank: getLastRank(),
+		done: false,
+		id: "blank",
+	};
 
+	afterNavigate(() => {
+		blankTodo.rank = getLastRank();
+	});
+
+	$: todosWithBlank = [...filteredTodos, blankTodo].sort((a, b) => (a.rank < b.rank ? -1 : 1));
 	$: len = todosWithBlank.length;
 
-	const focusedTodoIndex = writable(-1);
+	const focusedTodoId = writable<string | null>(null);
 
-	function onWindowKeydown(event: KeyboardEvent) {
-		const { key } = event;
-		if (key === "ArrowUp") {
-			if (event.metaKey) {
-				$focusedTodoIndex = 0;
-			} else {
-				$focusedTodoIndex--;
-				$focusedTodoIndex += len;
-				$focusedTodoIndex %= len;
-			}
-		}
-		if (key === "ArrowDown") {
-			if (event.metaKey) {
-				$focusedTodoIndex = len - 1;
-			} else {
-				$focusedTodoIndex++;
-				$focusedTodoIndex %= len;
-			}
+	function focusTopTodo() {
+		$focusedTodoId = todosWithBlank[0]!.id;
+	}
+
+	function focusBottomTodo() {
+		$focusedTodoId = todosWithBlank[len - 1]!.id;
+	}
+
+	function focusPrevTodo() {
+		if ($focusedTodoId === null) {
+			focusBottomTodo();
+		} else {
+			let i = todosWithBlank.findIndex((todo) => todo.id === $focusedTodoId) - 1;
+			i = Math.max(i, 0);
+			$focusedTodoId = todosWithBlank[i]!.id;
 		}
 	}
 
-	function onNewTodo(event: { detail: { content: string; index: number } }) {
-		const { content, index } = event.detail;
-
-		const rankAt = (i: number) => LexoRank.parse(filteredTodos[i].rank);
-
-		let rank: LexoRank;
-		const isFirst = index === 0;
-		const isLast = index === len - 1;
-
-		if (isFirst && isLast) {
-			rank = LexoRank.middle();
-		} else if (isFirst) {
-			rank = rankAt(index).genPrev();
-		} else if (isLast) {
-			rank = rankAt(index - 1).genNext();
+	function focusNextTodo() {
+		if ($focusedTodoId === null) {
+			focusTopTodo();
 		} else {
-			rank = rankAt(index - 1).between(rankAt(index));
+			let i = todosWithBlank.findIndex((todo) => todo.id === $focusedTodoId) + 1;
+			i = Math.min(i, len - 1);
+			$focusedTodoId = todosWithBlank[i]!.id;
 		}
+	}
 
-		todos.add(createTodo(content, rank.format()));
+	function onWindowKeydown(event: KeyboardEvent) {
+		const { key } = event;
+
+		if (key === "ArrowUp") {
+			if (event.metaKey) {
+				focusTopTodo();
+			} else {
+				focusPrevTodo();
+			}
+		} else if (key === "ArrowDown") {
+			if (event.metaKey) {
+				focusBottomTodo();
+			} else {
+				focusNextTodo();
+			}
+		} else if (key === "Enter") {
+			// move the blank todo above/below the focused todo, then focus it
+			// (or if there isn't a focused todo, focus the blank todo)
+
+			/** focused todo index */
+			const i = todosWithBlank.findIndex((todo) => todo.id === $focusedTodoId);
+
+			if (i === -1) {
+				$focusedTodoId = blankTodo.id;
+				return;
+			}
+
+			const focusedTodoRank = todosWithBlank[i]!.rank;
+
+			const neighbor = todosWithBlank[i + (event.shiftKey ? -1 : 1)];
+			const newRank = neighbor
+				? LexoRank.parse(focusedTodoRank).between(LexoRank.parse(neighbor.rank))
+				: i === todosWithBlank.length
+				? LexoRank.parse(blankTodo.rank).genPrev()
+				: LexoRank.parse(blankTodo.rank).genNext();
+
+			blankTodo.rank = newRank.toString();
+
+			$focusedTodoId = blankTodo.id;
+		}
+	}
+
+	function onNewTodo(event: { detail: { content: string } }) {
+		const { content } = event.detail;
+
+		todos.add(createTodo(content, blankTodo.rank));
 	}
 
 	function clearCompleted() {
@@ -138,14 +186,12 @@
 </div>
 
 <ul class="mt-4">
-	{#each todosWithBlank as todo, index ("id" in todo ? todo.id : -1)}
+	{#each todosWithBlank as todo (todo.id)}
 		<li animate:flip={{ duration: 100 }}>
 			<Todo_
-				{index}
-				{focusedTodoIndex}
-				{blankTodoIndex}
-				todoListLen={len}
 				{todo}
+				id={todo.id}
+				{focusedTodoId}
 				on:newtodo={onNewTodo}
 				on:updated={onListUpdated}
 			/>

@@ -1,5 +1,5 @@
 import { auth, getCollectionStore, getDocStore } from "$lib/firebase";
-import type { Todo, TodoList } from "$lib/todos";
+import type { Todo, TodoList } from "$lib/models";
 import { orderBy } from "firebase/firestore";
 
 export async function load({ params }) {

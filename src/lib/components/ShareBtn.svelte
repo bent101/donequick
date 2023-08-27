@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { db, getCollectionStore, newBatch, type DocStore, type UserSummary } from "$lib/firebase";
-	import type { TodoList } from "$lib/todos";
+	import { db, getCollectionData, newBatch, type DocStore } from "$lib/firebase";
+	import type { TodoList, UserSummary } from "$lib/models";
 	import { isEmail } from "$lib/utils";
 	import type { User } from "firebase/auth";
 	import { arrayUnion, doc, limit, updateDoc, where } from "firebase/firestore";
+	import { LexoRank } from "lexorank";
 	import { UserPlusIcon } from "svelte-feather-icons";
-	import { get } from "svelte/store";
 	import { fly } from "svelte/transition";
 
 	export let meta: DocStore<TodoList> | null;
@@ -22,9 +22,7 @@
 		// add invitee to user's contacts
 		await updateDoc(doc(db, `users/${user.uid}`), { contacts: arrayUnion(email) });
 
-		const q = get(
-			await getCollectionStore<UserSummary>("users", where("email", "==", email), limit(1))
-		);
+		const q = await getCollectionData<UserSummary>("users", where("email", "==", email), limit(1));
 
 		const invitee = q[0];
 

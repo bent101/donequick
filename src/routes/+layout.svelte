@@ -1,10 +1,10 @@
 <script>
 	import { invalidate } from "$app/navigation";
+	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { auth, signIn } from "$lib/firebase";
 	import { onAuthStateChanged } from "firebase/auth";
 	import { onDestroy } from "svelte";
 	import "../app.postcss";
-	import Sidebar from "$lib/components/Sidebar.svelte";
 	export let data;
 
 	$: ({ lists, user } = data);

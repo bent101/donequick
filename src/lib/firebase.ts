@@ -1,8 +1,7 @@
 // import { getAnalytics } from "firebase/analytics";
 
-import anon from "$lib/assets/images/anon.jpeg";
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, type User } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import {
 	addDoc,
 	collection,
@@ -20,13 +19,15 @@ import {
 	QueryDocumentSnapshot,
 	QuerySnapshot,
 	setDoc,
+	snapshotEqual,
 	updateDoc,
 	writeBatch,
 	type DocumentData,
-	snapshotEqual,
+	type UpdateData,
 } from "firebase/firestore";
 
 import { writable, type Writable } from "svelte/store";
+import { getUserSummary } from "./models";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -62,24 +63,6 @@ export async function deleteCollection(path: string) {
 	await batch.commit();
 }
 
-export type UserSummary = {
-	name: string;
-	email: string;
-	photoURL: string;
-	id: string;
-};
-
-export function getUserSummary(user: User): UserSummary {
-	const { displayName, uid, photoURL, email } = user;
-
-	return {
-		name: displayName ?? "[anonymous user]",
-		email: email ?? "",
-		photoURL: photoURL ?? anon,
-		id: uid,
-	};
-}
-
 export async function signIn() {
 	await signInWithPopup(auth, new GoogleAuthProvider());
 	if (!auth.currentUser) throw new Error("failed to sign in");
@@ -101,9 +84,22 @@ function formatDocs<T>(snapshot: QuerySnapshot) {
 	return snapshot.docs.map((doc) => formatDoc<T>(doc));
 }
 
+export async function getDocData<T extends DocumentData>(path: string): Promise<WithRefAndId<T>> {
+	return await getDoc(doc(db, path)).then((snapshot) => formatDoc<T>(snapshot));
+}
+
+export async function getCollectionData<T extends DocumentData>(
+	path: string,
+	...queryConstraints: QueryConstraint[]
+): Promise<WithRefAndId<T>[]> {
+	return await getDocs(query(collection(db, path), ...queryConstraints)).then((snapshot) =>
+		formatDocs<T>(snapshot)
+	);
+}
+
 export type DocStore<T> = {
 	set(val: T): void;
-	update(val: T): void;
+	update(val: UpdateData<T>): void;
 	delete(): void;
 	subscribe: Writable<WithRefAndId<T>>["subscribe"];
 	ref: DocumentReference<DocumentData, DocumentData>;
@@ -134,7 +130,7 @@ export async function getDocStore<T extends DocumentData>(path: string): Promise
 		set(val: T) {
 			setDoc(ref, val);
 		},
-		update(val: T) {
+		update(val: UpdateData<T>) {
 			updateDoc(ref, val);
 		},
 		delete() {

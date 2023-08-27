@@ -1,23 +1,21 @@
 <script lang="ts">
 	import type { WithRefAndId } from "$lib/firebase";
-	import type { Todo } from "$lib/todos";
+	import type { Todo } from "$lib/models";
 	import { deleteDoc, updateDoc } from "firebase/firestore";
 	import { createEventDispatcher } from "svelte";
 	import { CheckIcon, MoveIcon, PlusIcon, SquareIcon, Trash2Icon } from "svelte-feather-icons";
 	import type { Writable } from "svelte/store";
 
 	export let todo: WithRefAndId<Todo> | Todo;
-	export let index: number;
-	export let focusedTodoIndex: Writable<number>;
-	export let blankTodoIndex: Writable<number>;
-	export let todoListLen: number;
+	export let id: string;
+	export let focusedTodoId: Writable<string | null>;
 
 	let inputEl: HTMLInputElement | undefined;
 	let checkButton: HTMLElement | undefined;
 
 	let input = todo.content; // bound to <input>
 
-	$: if ($focusedTodoIndex === index) {
+	$: if ($focusedTodoId === id) {
 		if (todo.done) {
 			checkButton?.focus();
 		} else {
@@ -62,13 +60,9 @@
 
 		if (key === "Enter") {
 			if (!("ref" in todo)) {
-				onInputBlur();
+				submitTodo();
 			}
-
-			$blankTodoIndex = index + (event.shiftKey ? (justAdded ? 0 : input === "" ? -1 : 0) : 1);
-			$focusedTodoIndex = $blankTodoIndex;
-		}
-		if (key === "Tab") {
+		} else if (key === "Tab") {
 			// TODO: handle tab and shift tab
 			event.preventDefault();
 		}
@@ -76,17 +70,20 @@
 
 	function onInputFocus() {
 		inputIsFocused = true;
-		$focusedTodoIndex = index;
+		$focusedTodoId = id;
 	}
 
 	function onInputBlur() {
 		inputIsFocused = false;
 
-		if ($focusedTodoIndex === index) {
-			$blankTodoIndex = justAddedATodo() ? todoListLen : todoListLen - 1;
-			$focusedTodoIndex = -1;
+		if ($focusedTodoId === id) {
+			$focusedTodoId = null;
 		}
 
+		submitTodo();
+	}
+
+	function submitTodo() {
 		input = input.trim();
 
 		if (input === "") {
@@ -100,7 +97,7 @@
 				updateDoc(todo.ref, { content: todo.content });
 				dispatch("updated");
 			} else {
-				dispatch("newtodo", { content: input, index });
+				dispatch("newtodo", { content: input });
 				dispatch("updated");
 
 				input = "";
