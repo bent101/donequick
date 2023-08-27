@@ -27,6 +27,7 @@
 		const invitee = q[0];
 
 		if (!invitee) throw new Error(`${email} hasn't made an account yet`);
+		if ($meta.memberIds.includes(invitee.id)) throw new Error(`${email} has already been invited`);
 
 		// in one batch, add the invitee to the list, and add the user to the invitee's contacts
 		const batch = newBatch();
@@ -45,6 +46,7 @@
 		if (inviteInput === "") return;
 		try {
 			await invite(inviteInput);
+			inviteError = "";
 		} catch (error: any) {
 			inviteError = error?.message ?? "";
 		}

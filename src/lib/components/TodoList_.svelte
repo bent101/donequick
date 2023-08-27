@@ -16,6 +16,7 @@
 	import { writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
+	import { sleep } from "$lib/utils";
 
 	export let todos: CollectionStore<Todo>;
 	export let meta: DocStore<TodoList> | null;
@@ -40,24 +41,25 @@
 	let filteredTodos = [...$todos].filter((todo) => !($hideCompleted && todo.done));
 	$: filteredTodos = [...$todos].filter((todo) => !($hideCompleted && todo.done));
 
-	function getLastRank() {
+	function getFirstRank() {
 		if (filteredTodos.length === 0) {
 			return LexoRank.middle().toString();
 		}
-		const last = filteredTodos[filteredTodos.length - 1]!.rank;
-		return LexoRank.parse(last).genNext().toString();
+		const first = filteredTodos[0]!.rank;
+		return LexoRank.parse(first).genPrev().toString();
 	}
 
 	const blankTodo = {
 		content: "",
-		rank: getLastRank(),
+		rank: getFirstRank(),
 		done: false,
 		id: "blank",
 		indent: 0,
 	};
 
 	afterNavigate(() => {
-		blankTodo.rank = getLastRank();
+		blankTodo.rank = getFirstRank();
+		blankTodo.indent = 0;
 	});
 
 	$: todosWithBlank = [...filteredTodos, blankTodo].sort((a, b) => (a.rank < b.rank ? -1 : 1));
@@ -109,6 +111,7 @@
 				focusNextTodo();
 			}
 		} else if (key === "Enter") {
+			if (document.activeElement !== document.body) return;
 			// move the blank todo above/below the focused todo, then focus it
 			// (or if there isn't a focused todo, focus the blank todo)
 
@@ -185,11 +188,12 @@
 	</label>
 </div>
 
-<ul class="mb-32 mt-4">
+<ul class="mb-[60vh] mt-4">
 	{#each todosWithBlank as todo (todo.id)}
-		<li class="flex flex-col" animate:flip={{ duration: 100 }}>
+		<li class="flex flex-col" animate:flip={{ duration: todo.id === $focusedTodoId ? 0 : 100 }}>
 			<Todo_
 				{todo}
+				listName={$meta?.name}
 				id={todo.id}
 				{focusedTodoId}
 				on:newtodo={onNewTodo}

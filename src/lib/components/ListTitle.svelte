@@ -12,16 +12,14 @@
 
 	$: title = $meta?.name ?? "Todos";
 
-	async function onTitleChanged() {
+	afterNavigate(async () => {
 		titleInput = title;
 		if (title === "Untitled list") {
-			await sleep(0);
+			await sleep(1);
 			titleInputEl?.focus();
 			titleInputEl?.select();
 		}
-	}
-
-	$: title, onTitleChanged();
+	});
 
 	$: if (!$meta) {
 		titleInput = "Todos";
@@ -54,7 +52,8 @@
 
 <input
 	type="text"
-	name=""
+	name="title"
+	autocomplete="off"
 	spellcheck="false"
 	bind:value={titleInput}
 	bind:this={titleInputEl}

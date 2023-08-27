@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { WithRefAndId } from "$lib/firebase";
 	import type { Todo } from "$lib/models";
-	import { clamp } from "$lib/utils";
+	import { clamp, sleep } from "$lib/utils";
 	import { deleteDoc, updateDoc } from "firebase/firestore";
 	import { createEventDispatcher } from "svelte";
 	import { CheckIcon, MoveIcon, PlusIcon, SquareIcon, Trash2Icon } from "svelte-feather-icons";
@@ -10,6 +10,7 @@
 	export let todo: WithRefAndId<Todo> | Todo;
 	export let id: string;
 	export let focusedTodoId: Writable<string | null>;
+	export let listName: string | undefined;
 
 	let inputEl: HTMLInputElement | undefined;
 	let checkButton: HTMLElement | undefined;
@@ -109,7 +110,6 @@
 				dispatch("updated");
 
 				input = "";
-				self?.focus();
 			}
 		}
 	}
@@ -119,70 +119,75 @@
 	// }
 </script>
 
-<button
-	bind:this={self}
-	on:click={() => {
-		if (!("ref" in todo)) {
-			inputEl?.focus();
-		}
-	}}
-	style="margin-left: {2.5 * todo.indent}rem; transition-property: margin-left; duration: 100;"
-	class="group flex h-8 cursor-default scroll-m-32 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100 [&:has(>#moveicon:enabled:active)]:bg-slate-200 [&:has(>#moveicon:enabled:active)]:shadow-md [&:has(>#moveicon:enabled:active)]:shadow-slate-900/30 [&:has(>input:focus)]:bg-slate-100"
->
+<div class="flex justify-stretch">
+	{#each { length: todo.indent ?? 0 } as _}
+		<div class="-z-10 mr-5 h-8 w-[1.30rem] border-r-2 border-slate-200" />
+	{/each}
 	<button
-		tabindex="-1"
-		disabled={!("ref" in todo)}
-		id="moveicon"
-		class="text-transparent enabled:cursor-grab enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
-	>
-		<MoveIcon />
-	</button>
-
-	<button
-		bind:this={checkButton}
-		tabindex="-1"
+		bind:this={self}
 		on:click={() => {
-			if ("ref" in todo) {
-				todo.done = !todo.done;
-				updateDoc(todo.ref, { done: todo.done });
-				dispatch("updated");
+			if (!("ref" in todo)) {
+				inputEl?.focus();
 			}
 		}}
+		class="group flex h-8 flex-1 cursor-default scroll-m-32 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100"
 	>
-		{#if todo.done}
-			<CheckIcon class="h-full text-slate-400 hover:text-slate-500" />
-		{:else if "ref" in todo}
-			<SquareIcon
-				class="h-full text-slate-300 group-hover:text-slate-400 group-hover:hover:text-slate-500 group-[&:has(>input:focus)]:text-slate-400"
-			/>
-		{:else}
-			<PlusIcon
-				class="h-full cursor-default text-slate-300 group-[&:has(>input:focus)]:text-transparent"
-			/>
-		{/if}
+		<!-- <button
+			tabindex="-1"
+			disabled={!("ref" in todo)}
+			id="moveicon"
+			class="text-transparent enabled:cursor-grab enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
+		>
+			<MoveIcon />
+		</button> -->
+
+		<button
+			bind:this={checkButton}
+			tabindex="-1"
+			on:click={() => {
+				if ("ref" in todo) {
+					todo.done = !todo.done;
+					updateDoc(todo.ref, { done: todo.done });
+					dispatch("updated");
+				}
+			}}
+		>
+			{#if todo.done}
+				<CheckIcon class="h-full text-slate-400 hover:text-slate-500" />
+			{:else if "ref" in todo}
+				<SquareIcon
+					class="h-full text-slate-300 group-hover:text-slate-400 group-hover:hover:text-slate-500 group-[&:has(>input:focus)]:text-slate-400"
+				/>
+			{:else}
+				<PlusIcon
+					class="h-full cursor-default text-slate-300 group-[&:has(>input:focus)]:text-transparent"
+				/>
+			{/if}
+		</button>
+
+		<input
+			spellcheck="false"
+			bind:this={inputEl}
+			bind:value={input}
+			on:focus={onInputFocus}
+			on:blur={onInputBlur}
+			on:keydown={onInputKeydown}
+			disabled={todo.done}
+			placeholder={listName ? `Add to "${listName}"` : `Add a todo`}
+			class="mx-2 my-1 flex-1 border-b-2 {'ref' in todo
+				? 'border-transparent'
+				: 'border-slate-300'} bg-transparent outline-none placeholder:text-slate-400 focus:placeholder:text-transparent enabled:text-slate-700 enabled:focus:border-slate-500 disabled:pointer-events-none disabled:text-slate-400 disabled:line-through group-hover:border-slate-300 enabled:group-hover:focus:border-slate-500"
+		/>
+
+		<!-- <div class="font-mono text-slate-400">{todo.rank}</div> -->
+
+		<button
+			tabindex="-1"
+			disabled={!("ref" in todo)}
+			on:click|stopPropagation={deleteTodo}
+			class="text-transparent enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
+		>
+			<Trash2Icon />
+		</button>
 	</button>
-
-	<input
-		spellcheck="false"
-		bind:this={inputEl}
-		bind:value={input}
-		on:focus={onInputFocus}
-		on:blur={onInputBlur}
-		on:keydown={onInputKeydown}
-		disabled={todo.done}
-		class="mx-2 my-1 flex-1 border-b-2 {'ref' in todo
-			? 'border-transparent'
-			: 'border-slate-300'} bg-transparent outline-none enabled:text-slate-700 enabled:focus:border-slate-500 disabled:pointer-events-none disabled:text-slate-400 disabled:line-through group-hover:border-slate-300 enabled:group-hover:focus:border-slate-500"
-	/>
-
-	<!-- <div class="font-mono text-slate-400">{todo.rank}</div> -->
-
-	<button
-		tabindex="-1"
-		disabled={!("ref" in todo)}
-		on:click|stopPropagation={deleteTodo}
-		class="text-transparent enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
-	>
-		<Trash2Icon />
-	</button>
-</button>
+</div>
