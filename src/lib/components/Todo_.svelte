@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { WithRefAndId } from "$lib/firebase";
 	import type { Todo } from "$lib/models";
+	import { clamp } from "$lib/utils";
 	import { deleteDoc, updateDoc } from "firebase/firestore";
 	import { createEventDispatcher } from "svelte";
 	import { CheckIcon, MoveIcon, PlusIcon, SquareIcon, Trash2Icon } from "svelte-feather-icons";
@@ -22,7 +23,6 @@
 		} else {
 			inputEl?.focus();
 		}
-		self?.scrollIntoView();
 	} else {
 		inputEl?.blur();
 	}
@@ -65,7 +65,7 @@
 		} else if (key === "Tab") {
 			event.preventDefault();
 			let nextIndent = todo.indent + (event.shiftKey ? -1 : 1);
-			nextIndent = Math.max(Math.min(nextIndent, 6), 0);
+			nextIndent = Math.max(nextIndent, 0);
 			if (nextIndent !== todo.indent) {
 				todo.indent = nextIndent;
 				if ("ref" in todo) {
@@ -109,6 +109,7 @@
 				dispatch("updated");
 
 				input = "";
+				self?.focus();
 			}
 		}
 	}
@@ -126,7 +127,7 @@
 		}
 	}}
 	style="margin-left: {2.5 * todo.indent}rem; transition-property: margin-left; duration: 100;"
-	class="group flex h-8 cursor-default scroll-m-8 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100 [&:has(>#moveicon:enabled:active)]:bg-slate-200 [&:has(>#moveicon:enabled:active)]:shadow-md [&:has(>#moveicon:enabled:active)]:shadow-slate-900/30 [&:has(>input:focus)]:bg-slate-100"
+	class="group flex h-8 cursor-default scroll-m-32 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100 [&:has(>#moveicon:enabled:active)]:bg-slate-200 [&:has(>#moveicon:enabled:active)]:shadow-md [&:has(>#moveicon:enabled:active)]:shadow-slate-900/30 [&:has(>input:focus)]:bg-slate-100"
 >
 	<button
 		tabindex="-1"

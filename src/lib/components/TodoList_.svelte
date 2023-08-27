@@ -5,6 +5,7 @@
 
 	import ShareBtn from "./ShareBtn.svelte";
 
+	import { afterNavigate } from "$app/navigation";
 	import { newBatch, type CollectionStore, type DocStore } from "$lib/firebase";
 	import { createTodo, type Todo, type TodoList } from "$lib/models";
 	import type { User } from "firebase/auth";
@@ -12,11 +13,9 @@
 	import { LexoRank } from "lexorank";
 	import { persisted } from "svelte-local-storage-store";
 	import { flip } from "svelte/animate";
-	import { writable, type Writable } from "svelte/store";
+	import { writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
-	import { sleep } from "$lib/utils";
-	import { afterNavigate } from "$app/navigation";
 
 	export let todos: CollectionStore<Todo>;
 	export let meta: DocStore<TodoList> | null;
@@ -42,7 +41,6 @@
 	$: filteredTodos = [...$todos].filter((todo) => !($hideCompleted && todo.done));
 
 	function getLastRank() {
-		console.log("getting last rank");
 		if (filteredTodos.length === 0) {
 			return LexoRank.middle().toString();
 		}
@@ -127,9 +125,9 @@
 			const neighbor = todosWithBlank[i + (event.shiftKey ? -1 : 1)];
 			const newRank = neighbor
 				? LexoRank.parse(focusedTodo.rank).between(LexoRank.parse(neighbor.rank))
-				: i === todosWithBlank.length
-				? LexoRank.parse(blankTodo.rank).genPrev()
-				: LexoRank.parse(blankTodo.rank).genNext();
+				: i === todosWithBlank.length - 1
+				? LexoRank.parse(focusedTodo.rank).genNext()
+				: LexoRank.parse(focusedTodo.rank).genPrev();
 
 			blankTodo.rank = newRank.toString();
 			blankTodo.indent = focusedTodo.indent;
@@ -187,7 +185,7 @@
 	</label>
 </div>
 
-<ul class="mt-4">
+<ul class="mb-32 mt-4">
 	{#each todosWithBlank as todo (todo.id)}
 		<li class="flex flex-col" animate:flip={{ duration: 100 }}>
 			<Todo_

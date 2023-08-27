@@ -22,3 +22,7 @@ export function isEmail(str: string) {
 export async function sleep(ms: number) {
 	await new Promise((res) => setTimeout(res, ms));
 }
+
+export function clamp(num: number, min: number, max: number) {
+	return Math.min(Math.max(num, min), max);
+}
