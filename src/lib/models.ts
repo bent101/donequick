@@ -1,7 +1,6 @@
-import { serverTimestamp, type FieldValue } from "firebase/firestore";
-import { auth } from "./firebase";
-import type { User } from "firebase/auth";
 import anon from "$lib/assets/images/anon.jpeg";
+import type { User } from "firebase/auth";
+import { serverTimestamp, type FieldValue } from "firebase/firestore";
 
 export type UserSummary = {
 	name: string;
@@ -35,9 +34,9 @@ export type TodoList = {
 export function createTodoList(owner: User): TodoList {
 	return {
 		name: "Untitled list",
-		ownerId: user.uid,
-		memberIds: [user.uid],
-		members: [getUserSummary(user)],
+		ownerId: owner.uid,
+		memberIds: [owner.uid],
+		members: [getUserSummary(owner)],
 		updatedAt: serverTimestamp(),
 	};
 }

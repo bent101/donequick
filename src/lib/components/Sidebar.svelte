@@ -2,8 +2,9 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import { db, type CollectionStore } from "$lib/firebase";
-	import { createTodoList, type TodoList } from "$lib/models";
-	import { deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
+	import type { TodoList } from "$lib/models";
+	import type { User } from "firebase/auth";
+	import { doc, setDoc, updateDoc } from "firebase/firestore";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
 	import { flip } from "svelte/animate";
 
@@ -24,15 +25,15 @@
 
 		await goto("/", { replaceState: true });
 
-		list.memberIds = list.memberIds.filter((id) => id !== user.id);
-		list.members = list.members.filter((member) => member.id !== user.id);
+		list.memberIds = list.memberIds.filter((id) => id !== user.uid);
+		list.members = list.members.filter((member) => member.id !== user.uid);
 
-		if (user.id === list.ownerId) {
-			if (list.members.length === 0) {
+		if (user.uid === list.ownerId) {
+			if (list.memberIds[0]) {
+				list.ownerId = list.memberIds[0];
+			} else {
 				// deleteDoc(list.ref);
 				// deleteCollection(`lists/${list.id}/todos`);
-			} else {
-				list.ownerId = list.memberIds[0];
 			}
 		}
 

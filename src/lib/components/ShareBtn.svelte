@@ -4,7 +4,6 @@
 	import { isEmail } from "$lib/utils";
 	import type { User } from "firebase/auth";
 	import { arrayUnion, doc, limit, updateDoc, where } from "firebase/firestore";
-	import { LexoRank } from "lexorank";
 	import { UserPlusIcon } from "svelte-feather-icons";
 	import { fly } from "svelte/transition";
 

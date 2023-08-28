@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { WithRefAndId } from "$lib/firebase";
 	import type { Todo } from "$lib/models";
-	import { clamp, sleep } from "$lib/utils";
 	import { deleteDoc, updateDoc } from "firebase/firestore";
 	import { createEventDispatcher } from "svelte";
-	import { CheckIcon, MoveIcon, PlusIcon, SquareIcon, Trash2Icon } from "svelte-feather-icons";
+	import { CheckIcon, PlusIcon, SquareIcon, Trash2Icon } from "svelte-feather-icons";
 	import type { Writable } from "svelte/store";
 
 	export let todo: WithRefAndId<Todo> | Todo;
