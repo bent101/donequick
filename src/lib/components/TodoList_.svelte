@@ -16,7 +16,6 @@
 	import { writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
-	import { sleep } from "$lib/utils";
 
 	export let todos: CollectionStore<Todo>;
 	export let meta: DocStore<TodoList> | null;
@@ -53,7 +52,7 @@
 		content: "",
 		rank: getFirstRank(),
 		done: false,
-		id: "blank",
+		id: "blank" as const,
 		indent: 0,
 	};
 
@@ -111,7 +110,7 @@
 				focusNextTodo();
 			}
 		} else if (key === "Enter") {
-			if (document.activeElement !== document.body) return;
+			if (document.activeElement !== document.body && $focusedTodoId === null) return;
 			// move the blank todo above/below the focused todo, then focus it
 			// (or if there isn't a focused todo, focus the blank todo)
 
@@ -124,6 +123,17 @@
 			}
 
 			const focusedTodo = todosWithBlank[i]!;
+
+			if (event.metaKey && "ref" in focusedTodo) {
+				updateDoc(focusedTodo.ref, { done: true });
+				if (event.shiftKey) {
+					focusPrevTodo();
+				} else {
+					focusNextTodo();
+				}
+				onListUpdated();
+				return;
+			}
 
 			const neighbor = todosWithBlank[i + (event.shiftKey ? -1 : 1)];
 			const newRank = neighbor
@@ -156,10 +166,10 @@
 
 <svelte:window on:keydown={onWindowKeydown} />
 
-<div class="mb-4 flex h-10 items-stretch gap-2">
+<div class="mb-4 flex h-10 select-text items-stretch gap-2">
 	<ListTitle {meta} />
 
-	<div class="flex">
+	<div class="flex select-none">
 		{#each membersWithShareBtn as member (member.id)}
 			<div class="flex">
 				{#if member.id === "sharebtn"}

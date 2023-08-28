@@ -1,12 +1,6 @@
-import { auth, getCollectionStore, signIn } from "$lib/firebase";
-import type { TodoList } from "$lib/models";
-import { orderBy, where } from "firebase/firestore";
+import { auth, signIn } from "$lib/firebase";
 
-export const ssr = false;
-
-export async function load({ depends }) {
-	depends("firebase:auth");
-
+export async function load() {
 	await auth.authStateReady();
 	if (!auth.currentUser) {
 		await signIn();
@@ -20,10 +14,5 @@ export async function load({ depends }) {
 
 	return {
 		user,
-		lists: getCollectionStore<TodoList>(
-			"lists",
-			where("memberIds", "array-contains", user.uid),
-			orderBy("updatedAt", "desc")
-		),
 	};
 }

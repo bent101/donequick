@@ -8,14 +8,14 @@
 	import { flip } from "svelte/animate";
 
 	export let lists: CollectionStore<TodoList>;
-	export let userId: string;
+	export let user: User;
 
 	$: listsWithTodos = [{ name: "Todos", id: undefined } as const, ...$lists];
 
 	async function createNewList() {
 		// generate id client-side to take advatange of optimistic updates
 		const id = crypto.randomUUID();
-		await setDoc(doc(db, `lists/${id}`), createTodoList());
+		await setDoc(doc(db, `lists/${id}`), user);
 		goto(`/${id}`);
 	}
 
@@ -24,10 +24,10 @@
 
 		await goto("/", { replaceState: true });
 
-		list.memberIds = list.memberIds.filter((id) => id !== userId);
-		list.members = list.members.filter((member) => member.id !== userId);
+		list.memberIds = list.memberIds.filter((id) => id !== user.id);
+		list.members = list.members.filter((member) => member.id !== user.id);
 
-		if (userId === list.ownerId) {
+		if (user.id === list.ownerId) {
 			if (list.members.length === 0) {
 				// deleteDoc(list.ref);
 				// deleteCollection(`lists/${list.id}/todos`);

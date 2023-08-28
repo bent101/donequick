@@ -32,9 +32,7 @@ export type TodoList = {
 	updatedAt: FieldValue;
 };
 
-export function createTodoList(): TodoList {
-	const user = auth.currentUser;
-	if (!user) throw new Error("sign in to create a list");
+export function createTodoList(owner: User): TodoList {
 	return {
 		name: "Untitled list",
 		ownerId: user.uid,

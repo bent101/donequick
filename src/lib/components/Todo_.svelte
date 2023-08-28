@@ -119,18 +119,20 @@
 	// }
 </script>
 
-<div class="flex justify-stretch">
-	{#each { length: todo.indent ?? 0 } as _}
-		<div class="-z-10 mr-5 h-8 w-[1.30rem] border-r-2 border-slate-200" />
+<div class="flex select-text justify-stretch">
+	{#each { length: todo.indent ?? 0 } as _, i}
+		<div
+			class="-z-10 mr-5 h-8 w-[1.30rem] border-r-2 border-slate-200 text-transparent selection:!bg-transparent"
+		>
+			&nbsp; &nbsp; &nbsp; &nbsp;
+		</div>
 	{/each}
 	<button
 		bind:this={self}
 		on:click={() => {
-			if (!("ref" in todo)) {
-				inputEl?.focus();
-			}
+			inputEl?.focus();
 		}}
-		class="group flex h-8 flex-1 cursor-default scroll-m-32 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100"
+		class="group flex h-8 flex-1 cursor-text scroll-m-32 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100"
 	>
 		<!-- <button
 			tabindex="-1"
@@ -142,6 +144,7 @@
 		</button> -->
 
 		<button
+			class="select-none"
 			bind:this={checkButton}
 			tabindex="-1"
 			on:click={() => {
@@ -154,7 +157,7 @@
 		>
 			{#if todo.done}
 				<CheckIcon class="h-full text-slate-400 hover:text-slate-500" />
-			{:else if "ref" in todo}
+			{:else if "ref" in todo || inputIsFocused}
 				<SquareIcon
 					class="h-full text-slate-300 group-hover:text-slate-400 group-hover:hover:text-slate-500 group-[&:has(>input:focus)]:text-slate-400"
 				/>
@@ -176,7 +179,7 @@
 			placeholder={listName ? `Add to "${listName}"` : `Add a todo`}
 			class="mx-2 my-1 flex-1 border-b-2 {'ref' in todo
 				? 'border-transparent'
-				: 'border-slate-300'} bg-transparent outline-none placeholder:text-slate-400 focus:placeholder:text-transparent enabled:text-slate-700 enabled:focus:border-slate-500 disabled:pointer-events-none disabled:text-slate-400 disabled:line-through group-hover:border-slate-300 enabled:group-hover:focus:border-slate-500"
+				: 'select-none border-slate-300'} bg-transparent outline-none placeholder:text-slate-400 focus:placeholder:text-transparent enabled:text-slate-700 enabled:focus:border-slate-500 disabled:pointer-events-none disabled:text-slate-400 disabled:line-through group-hover:border-slate-300 enabled:group-hover:focus:border-slate-500"
 		/>
 
 		<!-- <div class="font-mono text-slate-400">{todo.rank}</div> -->
@@ -185,7 +188,7 @@
 			tabindex="-1"
 			disabled={!("ref" in todo)}
 			on:click|stopPropagation={deleteTodo}
-			class="text-transparent enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
+			class="select-none text-transparent enabled:group-hover:text-slate-400 enabled:group-hover:hover:text-slate-500 enabled:group-[&:has(>input:focus)]:text-slate-400"
 		>
 			<Trash2Icon />
 		</button>
