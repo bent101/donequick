@@ -1,8 +1,15 @@
+import { browser } from "$app/environment";
 import { auth, signIn } from "$lib/firebase";
 
-export const ssr = false;
+// export const ssr = false;
 
 export async function load() {
+	if (!browser) {
+		return {
+			user: null,
+		};
+	}
+
 	await auth.authStateReady();
 
 	if (!auth.currentUser) {

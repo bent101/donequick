@@ -4,8 +4,10 @@ import { orderBy } from "firebase/firestore";
 
 export async function load({ params, parent }) {
 	const { user } = await parent();
+	if (!user) return { user };
 
 	return {
+		user,
 		todoList: params.listId ? getDocStore<TodoList>(`lists/${params.listId}`) : null,
 		todos: params.listId
 			? getCollectionStore<Todo>(`lists/${params.listId}/todos`, orderBy("rank"))

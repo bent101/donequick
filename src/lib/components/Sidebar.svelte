@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
-	import { db, type CollectionStore } from "$lib/firebase";
+	import { db, type WithRefAndId } from "$lib/firebase";
 	import type { TodoList } from "$lib/models";
 	import type { User } from "firebase/auth";
 	import { doc, setDoc, updateDoc } from "firebase/firestore";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
 	import { flip } from "svelte/animate";
 
-	export let lists: CollectionStore<TodoList>;
-	export let user: User;
+	export let user: User | null;
+	export let lists: WithRefAndId<TodoList>[];
 
-	$: listsWithTodos = [{ name: "Todos", id: undefined } as const, ...$lists];
+	$: listsWithTodos = [{ name: "Todos", id: undefined } as const, ...lists];
 
 	async function createNewList() {
 		// generate id client-side to take advatange of optimistic updates
@@ -21,14 +21,16 @@
 	}
 
 	async function deleteList(list: (typeof listsWithTodos)[number]) {
-		if (!("ownerId" in list)) return;
+		if (!("ownerId" in list) || user === null) return;
 
 		await goto("/", { replaceState: true });
 
-		list.memberIds = list.memberIds.filter((id) => id !== user.uid);
-		list.members = list.members.filter((member) => member.id !== user.uid);
+		const userId = user.uid;
 
-		if (user.uid === list.ownerId) {
+		list.memberIds = list.memberIds.filter((id) => id !== userId);
+		list.members = list.members.filter((member) => member.id !== userId);
+
+		if (userId === list.ownerId) {
 			if (list.memberIds[0]) {
 				list.ownerId = list.memberIds[0];
 			} else {

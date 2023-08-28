@@ -22,7 +22,11 @@
 		<h1 class="ml-6 mr-auto font-serif text-3xl font-extrabold text-slate-700">
 			<a href="/">donequick</a>
 		</h1>
-		<img src={user.photoURL} alt="" class="h-full rounded-full" />
+		{#if data.user}
+			<img src={data.user.photoURL} alt="" class="h-full rounded-full" />
+		{:else}
+			<div class="h-full w-12 rounded-full bg-slate-200" />
+		{/if}
 		<button
 			on:click={async () => {
 				await auth.signOut();
@@ -35,7 +39,7 @@
 	</header>
 
 	<div class="flex flex-1 overflow-clip">
-		<Sidebar {user} {lists} />
+		<Sidebar {user} lists={$lists ?? []} />
 		<main class="flex-1 overflow-y-scroll p-8">
 			<div class="max-w-4xl">
 				<slot />

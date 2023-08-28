@@ -37,8 +37,9 @@
 	}
 
 	const hideCompleted = persisted("hideCompleted", true);
-	let filteredTodos = [...$todos].filter((todo) => !($hideCompleted && todo.done));
-	$: filteredTodos = [...$todos].filter((todo) => !($hideCompleted && todo.done));
+
+	let filteredTodos = $todos.filter((todo) => !($hideCompleted && todo.done));
+	$: filteredTodos = $todos.filter((todo) => !($hideCompleted && todo.done));
 
 	function getFirstRank() {
 		if (filteredTodos.length === 0) {

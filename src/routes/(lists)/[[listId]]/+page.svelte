@@ -4,4 +4,6 @@
 	export let data;
 </script>
 
-<TodoList_ user={data.user} todos={data.todos} meta={data.todoList} />
+{#if data.user}
+	<TodoList_ user={data.user} todos={data.todos} meta={data.todoList} />
+{/if}
