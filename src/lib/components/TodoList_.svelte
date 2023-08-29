@@ -188,13 +188,15 @@
 		<button
 			transition:fly={{ duration: 150, x: 20 }}
 			on:click={clearCompleted}
-			class="mr-4 rounded-full bg-slate-200 px-4 text-slate-500 hover:bg-slate-300 hover:text-slate-600"
+			class="mr-4 rounded-full bg-neutral-200 px-4 text-neutral-500 hover:bg-neutral-300 hover:text-neutral-600 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:hover:text-neutral-400"
 		>
 			Clear completed
 		</button>
 	{/if}
 	<label class="cursor-pointer">
-		<span class="mr-2 text-slate-400">Hide completed</span>
+		<span class="mr-2 text-neutral-400 marker:bg-neutral-950 dark:text-neutral-600"
+			>Hide completed</span
+		>
 		<input bind:checked={$hideCompleted} type="checkbox" />
 	</label>
 </div>
