@@ -2,7 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import { db, type WithRefAndId } from "$lib/firebase";
-	import type { TodoList } from "$lib/models";
+	import { createTodoList, type TodoList } from "$lib/models";
 	import type { User } from "firebase/auth";
 	import { doc, setDoc, updateDoc } from "firebase/firestore";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
@@ -14,9 +14,10 @@
 	$: listsWithTodos = [{ name: "Todos", id: undefined } as const, ...lists];
 
 	async function createNewList() {
+		if (!user) return;
 		// generate id client-side to take advatange of optimistic updates
 		const id = crypto.randomUUID();
-		await setDoc(doc(db, `lists/${id}`), user);
+		await setDoc(doc(db, `lists/${id}`), createTodoList(user));
 		goto(`/${id}`);
 	}
 

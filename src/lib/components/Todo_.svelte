@@ -118,7 +118,7 @@
 	// }
 </script>
 
-<div class="flex select-text justify-stretch">
+<div class="flex min-w-max select-text justify-stretch">
 	{#each { length: todo.indent ?? 0 } as _, i}
 		<div
 			class="-z-10 mr-5 h-8 w-[1.30rem] border-r-2 border-slate-200 text-transparent selection:!bg-transparent"

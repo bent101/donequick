@@ -60,5 +60,5 @@
 	disabled={!meta}
 	on:blur={onTitleInputBlur}
 	on:keydown={onTitleInputKeydown}
-	class="w-80 overflow-clip overflow-ellipsis rounded-full border-2 border-transparent bg-transparent px-4 text-lg font-bold text-slate-500 outline-0 enabled:border-slate-200 enabled:hover:border-slate-300 enabled:focus:border-blue-500"
+	class="w-80 min-w-min overflow-clip overflow-ellipsis rounded-full border-2 border-transparent bg-transparent px-4 text-lg font-bold text-slate-500 outline-0 enabled:border-slate-200 enabled:hover:border-slate-300 enabled:focus:border-blue-500"
 />

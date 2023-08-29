@@ -66,7 +66,7 @@
 	}
 </script>
 
-<div class="relative mr-2">
+<div class="relative mr-2 min-w-max">
 	<button
 		on:click={() => inviteInputEl?.focus()}
 		transition:fly={{ duration: 150, x: -20 }}
