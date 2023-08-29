@@ -35,6 +35,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@sveltejs/adapter-vercel": "^3.0.3",
 		"firebase": "^10.3.0",
 		"firebase-frameworks": "^0.10.5",
 		"lexorank": "^1.0.5",

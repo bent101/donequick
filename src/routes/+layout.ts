@@ -1,8 +1,10 @@
 import { browser } from "$app/environment";
 import { auth, signIn } from "$lib/firebase";
+import type { Config } from "@sveltejs/adapter-vercel";
 
-// export const ssr = false;
-
+export const config: Config = {
+	runtime: "edge",
+};
 export async function load() {
 	if (!browser) {
 		return {
