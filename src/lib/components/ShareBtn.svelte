@@ -70,13 +70,13 @@
 	<button
 		on:click={() => inviteInputEl?.focus()}
 		transition:fly={{ duration: 150, x: -20 }}
-		class="h-full rounded-full bg-neutral-200 px-4 text-neutral-500 hover:bg-neutral-300 hover:text-neutral-600 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:hover:text-neutral-400"
+		class="h-full rounded-full bg-gray-200 px-4 text-gray-500 hover:bg-gray-300 hover:text-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-gray-400"
 	>
 		<UserPlusIcon class="mr-2 inline" />Share
 	</button>
 
 	<div
-		class="pointer-events-none absolute right-0 top-0 z-20 w-80 rounded-[1.25rem] bg-neutral-300 p-2 opacity-0 shadow-lg focus-within:pointer-events-auto focus-within:opacity-100 dark:bg-neutral-700"
+		class="pointer-events-none absolute right-0 top-0 z-20 w-80 rounded-[1.25rem] bg-gray-300 p-2 opacity-0 shadow-lg focus-within:pointer-events-auto focus-within:opacity-100 dark:bg-gray-700"
 	>
 		<input
 			bind:this={inviteInputEl}
@@ -90,16 +90,16 @@
 			}}
 			type="email"
 			placeholder="Invite people by email"
-			class="w-full rounded-full bg-white px-4 py-0.5 text-neutral-600 outline-none placeholder:text-neutral-400 dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder:text-neutral-600"
+			class="w-full rounded-full bg-white px-4 py-0.5 text-gray-600 outline-none placeholder:text-gray-400 dark:bg-gray-900 dark:text-gray-400 dark:placeholder:text-gray-600"
 		/>
 
-		<div class="m-2 h-4 text-xs font-semibold text-red-800 dark:text-red-600">
+		<div class="m-2 h-4 text-xs font-semibold text-red-800 dark:text-red-300">
 			{inviteError}
 		</div>
 
 		<button
 			on:click={onInviteBtnClick}
-			class="ml-auto mt-2 block h-8 rounded-full bg-neutral-600 px-4 py-1 font-semibold text-neutral-100 dark:bg-neutral-400 dark:text-neutral-900"
+			class="ml-auto mt-2 block h-8 rounded-full bg-gray-600 px-4 py-1 font-semibold text-gray-100 dark:bg-gray-400 dark:text-gray-900"
 			>Invite</button
 		>
 	</div>

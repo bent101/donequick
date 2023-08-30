@@ -1,5 +1,6 @@
 import { browser } from "$app/environment";
-import { auth, signIn } from "$lib/firebase";
+import { auth } from "$lib/firebase";
+import { redirect } from "@sveltejs/kit";
 
 export async function load() {
 	if (!browser) {
@@ -10,13 +11,7 @@ export async function load() {
 
 	await auth.authStateReady();
 
-	if (!auth.currentUser) {
-		await signIn();
-	}
-
-	if (!auth.currentUser) {
-		throw new Error("failed to sign in");
-	}
+	if (!auth.currentUser) throw redirect(301, "/signin");
 
 	const user = auth.currentUser;
 

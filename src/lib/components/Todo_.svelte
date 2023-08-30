@@ -121,7 +121,7 @@
 <div class="flex min-w-max select-text justify-stretch">
 	{#each { length: todo.indent ?? 0 } as _, i}
 		<div
-			class="-z-10 mr-5 h-8 w-[1.30rem] border-r-2 border-neutral-200 text-transparent selection:!bg-transparent dark:border-neutral-800"
+			class="-z-10 mr-5 h-8 w-[1.30rem] border-r-2 border-gray-200 text-transparent selection:!bg-transparent dark:border-gray-800"
 		>
 			&nbsp; &nbsp; &nbsp; &nbsp;
 		</div>
@@ -137,7 +137,7 @@
 			tabindex="-1"
 			disabled={!("ref" in todo)}
 			id="moveicon"
-			class="text-transparent enabled:cursor-grab enabled:group-hover:text-neutral-400 enabled:group-hover:hover:text-neutral-500 enabled:group-[&:has(>input:focus)]:text-neutral-400"
+			class="text-transparent enabled:cursor-grab enabled:group-hover:text-gray-400 enabled:group-hover:hover:text-gray-500 enabled:group-[&:has(>input:focus)]:text-gray-400"
 		>
 			<MoveIcon />
 		</button> -->
@@ -155,14 +155,14 @@
 			}}
 		>
 			{#if todo.done}
-				<CheckIcon class="h-full text-neutral-400 hover:text-neutral-500 dark:text-neutral-600" />
+				<CheckIcon class="h-full text-gray-400 hover:text-gray-500 dark:text-gray-600" />
 			{:else if "ref" in todo || inputIsFocused}
 				<SquareIcon
-					class="h-full text-neutral-300 group-hover:text-neutral-400 group-hover:hover:text-neutral-500  group-[&:has(>input:focus)]:text-neutral-400 dark:text-neutral-700 dark:group-hover:text-neutral-600 dark:group-[&:has(>input:focus)]:text-neutral-600 "
+					class="h-full text-gray-300 group-hover:text-gray-400 group-hover:hover:text-gray-500  group-[&:has(>input:focus)]:text-gray-400 dark:text-gray-700 dark:group-hover:text-gray-600 dark:group-[&:has(>input:focus)]:text-gray-600 "
 				/>
 			{:else}
 				<PlusIcon
-					class="h-full cursor-default text-neutral-300 group-[&:has(>input:focus)]:text-transparent dark:text-neutral-700"
+					class="h-full cursor-default text-gray-300 group-[&:has(>input:focus)]:text-transparent dark:text-gray-700"
 				/>
 			{/if}
 		</button>
@@ -178,16 +178,16 @@
 			placeholder={listName ? `Add to "${listName}"` : `Add a todo`}
 			class="mx-2 my-1 flex-1 border-b-2 {'ref' in todo
 				? 'border-transparent'
-				: 'select-none border-neutral-300 dark:border-neutral-700'} bg-transparent outline-none placeholder:text-neutral-400 focus:placeholder:text-transparent enabled:text-neutral-700 enabled:focus:border-neutral-500 disabled:pointer-events-none disabled:text-neutral-400 disabled:line-through group-hover:border-neutral-300 enabled:group-hover:focus:border-neutral-500 dark:placeholder:text-neutral-600 dark:enabled:text-neutral-300 dark:disabled:text-neutral-600 dark:group-hover:border-neutral-700 dark:enabled:group-hover:focus:border-neutral-500"
+				: 'select-none border-gray-300 dark:border-gray-700'} bg-transparent outline-none placeholder:text-gray-400 focus:placeholder:text-transparent enabled:text-gray-700 enabled:focus:border-gray-500 disabled:pointer-events-none disabled:text-gray-400 disabled:line-through group-hover:border-gray-300 enabled:group-hover:focus:border-gray-500 dark:placeholder:text-gray-600 dark:enabled:text-gray-300 dark:disabled:text-gray-600 dark:group-hover:border-gray-700 dark:enabled:group-hover:focus:border-gray-500"
 		/>
 
-		<!-- <div class="font-mono text-neutral-400">{todo.rank}</div> -->
+		<!-- <div class="font-mono text-gray-400">{todo.rank}</div> -->
 
 		<button
 			tabindex="-1"
 			disabled={!("ref" in todo)}
 			on:click|stopPropagation={deleteTodo}
-			class="select-none text-transparent enabled:group-hover:text-neutral-400 enabled:group-hover:hover:text-neutral-500 enabled:group-[&:has(>input:focus)]:text-neutral-400 dark:enabled:group-hover:text-neutral-600 dark:enabled:group-hover:hover:text-neutral-500 dark:enabled:group-[&:has(>input:focus)]:text-neutral-600"
+			class="select-none text-transparent enabled:group-hover:text-gray-400 enabled:group-hover:hover:text-gray-500 enabled:group-[&:has(>input:focus)]:text-gray-400 dark:enabled:group-hover:text-gray-600 dark:enabled:group-hover:hover:text-gray-500 dark:enabled:group-[&:has(>input:focus)]:text-gray-600"
 		>
 			<Trash2Icon />
 		</button>

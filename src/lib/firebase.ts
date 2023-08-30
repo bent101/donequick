@@ -28,6 +28,7 @@ import {
 
 import { writable, type Writable } from "svelte/store";
 import { getUserSummary } from "./models";
+import { goto } from "$app/navigation";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -67,6 +68,7 @@ export async function signIn() {
 	await signInWithPopup(auth, new GoogleAuthProvider());
 	if (!auth.currentUser) throw new Error("failed to sign in");
 
+	goto("/");
 	setDoc(doc(db, `users/${auth.currentUser.uid}`), getUserSummary(auth.currentUser));
 }
 

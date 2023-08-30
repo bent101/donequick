@@ -51,25 +51,23 @@
 	// onMount(() => (mounted = true));
 </script>
 
-<aside class="w-96 overflow-y-scroll bg-neutral-200 pb-32 pt-8 dark:bg-neutral-950">
-	<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-neutral-500/80">
-		My Lists
-	</h2>
+<aside class="w-96 overflow-y-scroll bg-gray-200 pb-32 pt-8 dark:bg-gray-950">
+	<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-gray-500/80">My Lists</h2>
 	<div class="mr-8">
 		{#each listsWithTodos as list (list.id)}
 			{@const selected = $page.params.listId === list.id ?? ""}
 			<!-- transition:fly={{ duration: 300, x: -200, delay: 100 * i }} -->
 			<div animate:flip={{ duration: 300 }}>
 				{#if list.name === "Shared"}
-					<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-neutral-500/80">
+					<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-gray-500/80">
 						Shared
 					</h2>
 				{:else}
 					<div
 						class="group flex items-center overflow-clip whitespace-nowrap rounded-r-full
 				{selected
-							? 'z-10 bg-neutral-600 text-neutral-100 dark:bg-neutral-400 dark:text-neutral-900'
-							: 'text-neutral-600 hover:bg-neutral-300 dark:text-neutral-400 dark:hover:bg-neutral-900'}"
+							? 'z-10 bg-gray-600 text-gray-100 dark:bg-gray-400 dark:text-gray-900'
+							: 'text-gray-600 hover:bg-gray-300 dark:text-gray-400 dark:hover:bg-gray-900'}"
 					>
 						<a
 							class="block flex-1 self-stretch overflow-clip overflow-ellipsis py-2 pl-12 pr-1 text-lg font-semibold"
@@ -81,7 +79,7 @@
 							<button
 								on:click={() => deleteList(list)}
 								class="invisible mr-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full group-hover:visible
-						{selected ? 'hover:bg-neutral-200/20' : 'hover:bg-neutral-600/20'}"
+						{selected ? 'hover:bg-gray-200/20' : 'hover:bg-gray-600/20'}"
 							>
 								<Trash2Icon class="p-0.5" />
 							</button>
@@ -93,9 +91,8 @@
 	</div>
 	<button
 		on:click={createNewList}
-		class="fixed bottom-3 left-[13.5rem] z-10 rounded-full border-b-4 border-neutral-800 bg-neutral-700 py-3 pl-3 pr-6 text-xl font-bold text-neutral-100 shadow-lg shadow-neutral-900/60 transition-all duration-100 active:border-b-0 dark:border-neutral-900 dark:bg-neutral-800 dark:shadow-none"
+		class="fixed bottom-3 left-[13.5rem] z-10 rounded-full border-b-4 border-gray-800 bg-gray-700 py-3 pl-3 pr-6 text-xl font-bold text-gray-100 shadow-lg shadow-gray-900/60 transition-all duration-100 active:border-b-0 dark:border-gray-900 dark:bg-gray-800 dark:shadow-none"
 	>
-		<PlusIcon class="-tranneutral-y-0.5 inline w-9 text-neutral-400 dark:text-neutral-600" />New
-		List
+		<PlusIcon class="-trangray-y-0.5 inline w-9 text-gray-400 dark:text-gray-600" />New List
 	</button>
 </aside>
