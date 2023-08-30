@@ -15,7 +15,7 @@
 </script>
 
 <div
-	class="flex h-screen flex-col items-stretch selection:!bg-blue-500 selection:!text-white dark:selection:!bg-blue-400 dark:selection:!text-gray-900"
+	class="flex h-screen max-h-screen flex-col items-stretch overflow-hidden selection:!bg-blue-500 selection:!text-white dark:selection:!bg-blue-400 dark:selection:!text-gray-900"
 >
 	<Header>
 		{#if user}
@@ -38,7 +38,7 @@
 		{/if}
 	</Header>
 
-	<div class="flex flex-1 overflow-clip">
+	<div class="flex flex-1 items-stretch overflow-hidden">
 		{#if $lists}
 			<Sidebar {user} lists={$lists} />
 		{/if}

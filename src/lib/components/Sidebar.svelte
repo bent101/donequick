@@ -64,13 +64,13 @@
 					</h2>
 				{:else}
 					<div
-						class="group flex items-center overflow-clip whitespace-nowrap rounded-r-full
+						class="group flex items-center overflow-hidden whitespace-nowrap rounded-r-full
 				{selected
 							? 'z-10 bg-gray-600 text-gray-100 dark:bg-gray-400 dark:text-gray-900'
 							: 'text-gray-600 hover:bg-gray-300 dark:text-gray-400 dark:hover:bg-gray-900'}"
 					>
 						<a
-							class="block flex-1 self-stretch overflow-clip overflow-ellipsis py-2 pl-12 pr-1 text-lg font-semibold"
+							class="block flex-1 self-stretch overflow-hidden overflow-ellipsis py-2 pl-12 pr-1 text-lg font-semibold"
 							href="/{list.id ?? ''}"
 						>
 							{list.name}

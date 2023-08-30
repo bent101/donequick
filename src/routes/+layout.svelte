@@ -2,6 +2,9 @@
 	import "../app.postcss";
 </script>
 
-<svelte:head><title>donequick</title></svelte:head>
+<svelte:head>
+	<title>donequick</title>
+	<meta name="darkreader-lock" />
+</svelte:head>
 
 <slot />
