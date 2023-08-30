@@ -39,7 +39,9 @@
 	</Header>
 
 	<div class="flex flex-1 overflow-clip">
-		<Sidebar {user} lists={$lists ?? []} />
+		{#if $lists}
+			<Sidebar {user} lists={$lists} />
+		{/if}
 		<main class="flex-1 overflow-y-scroll p-8 dark:bg-gray-900">
 			<div class="max-w-4xl">
 				<slot />
