@@ -5,7 +5,7 @@
 
 	import ShareBtn from "./ShareBtn.svelte";
 
-	import { afterNavigate } from "$app/navigation";
+	import { afterNavigate, beforeNavigate } from "$app/navigation";
 	import { newBatch, type CollectionStore, type DocStore } from "$lib/firebase";
 	import { createTodo, type Todo, type TodoList } from "$lib/models";
 	import type { User } from "firebase/auth";
@@ -14,8 +14,9 @@
 	import { persisted } from "svelte-local-storage-store";
 	import { flip } from "svelte/animate";
 	import { writable } from "svelte/store";
-	import { fly } from "svelte/transition";
+	import { fade, fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
+	import { backOut } from "svelte/easing";
 
 	export let todos: CollectionStore<Todo>;
 	export let meta: DocStore<TodoList> | null;
@@ -56,11 +57,6 @@
 		id: "blank" as const,
 		indent: 0,
 	};
-
-	afterNavigate(() => {
-		blankTodo.rank = getFirstRank();
-		blankTodo.indent = 0;
-	});
 
 	$: todosWithBlank = [...filteredTodos, blankTodo].sort((a, b) => (a.rank < b.rank ? -1 : 1));
 	$: len = todosWithBlank.length;
@@ -163,6 +159,15 @@
 		});
 		batch.commit();
 	}
+
+	beforeNavigate(() => {
+		blankTodo.rank = LexoRank.min().toString();
+	});
+
+	afterNavigate(() => {
+		blankTodo.rank = getFirstRank();
+		blankTodo.indent = 0;
+	});
 </script>
 
 <svelte:window on:keydown={onWindowKeydown} />

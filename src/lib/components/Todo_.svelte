@@ -121,7 +121,7 @@
 <div class="flex min-w-max select-text justify-stretch">
 	{#each { length: todo.indent ?? 0 } as _, i}
 		<div
-			class="-z-10 mr-5 h-8 w-[1.30rem] border-r-2 border-gray-200 text-transparent selection:!bg-transparent dark:border-gray-800"
+			class="mr-5 h-8 w-[1.30rem] border-r-2 border-gray-200 text-transparent selection:!bg-transparent dark:border-gray-800"
 		>
 			&nbsp; &nbsp; &nbsp; &nbsp;
 		</div>
@@ -133,15 +133,6 @@
 		}}
 		class="group flex h-8 flex-1 cursor-text scroll-m-32 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100"
 	>
-		<!-- <button
-			tabindex="-1"
-			disabled={!("ref" in todo)}
-			id="moveicon"
-			class="text-transparent enabled:cursor-grab enabled:group-hover:text-gray-400 enabled:group-hover:hover:text-gray-500 enabled:group-[&:has(>input:focus)]:text-gray-400"
-		>
-			<MoveIcon />
-		</button> -->
-
 		<button
 			class="select-none"
 			bind:this={checkButton}
