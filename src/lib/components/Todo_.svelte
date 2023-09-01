@@ -120,11 +120,7 @@
 
 <div class="flex min-w-max select-text justify-stretch">
 	{#each { length: todo.indent ?? 0 } as _, i}
-		<div
-			class="mr-5 h-8 w-[1.30rem] border-r-2 border-gray-200 text-transparent selection:!bg-transparent dark:border-gray-800"
-		>
-			&nbsp; &nbsp; &nbsp; &nbsp;
-		</div>
+		<div class="mr-5 h-8 w-[1.30rem] border-r-2 border-gray-200 dark:border-gray-800" />
 	{/each}
 	<button
 		bind:this={self}
