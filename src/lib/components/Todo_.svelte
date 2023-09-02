@@ -112,10 +112,6 @@
 			}
 		}
 	}
-
-	// function justAddedATodo() {
-	// 	return !("ref" in todo) && input !== "";
-	// }
 </script>
 
 <div class="flex min-w-max select-text justify-stretch">
