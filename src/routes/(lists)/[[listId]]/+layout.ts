@@ -2,6 +2,8 @@ import { getCollectionStore, getDocStore } from "$lib/firebase";
 import type { Todo, TodoList } from "$lib/models";
 import { orderBy } from "firebase/firestore";
 
+export const prerender = false;
+
 export async function load({ params, parent }) {
 	const { user } = await parent();
 	if (!user) return { user };
