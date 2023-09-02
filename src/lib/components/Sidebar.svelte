@@ -9,9 +9,9 @@
 	import { flip } from "svelte/animate";
 
 	export let user: User | null;
-	export let lists: WithRefAndId<TodoList>[];
+	export let lists: WithRefAndId<TodoList>[] | undefined;
 
-	$: listsWithTodos = [{ name: "Todos", id: undefined } as const, ...lists];
+	$: listsWithTodos = lists ? [{ name: "Todos", id: undefined } as const, ...lists] : [];
 
 	async function createNewList() {
 		if (!user) return;
@@ -54,15 +54,11 @@
 <aside class="w-96 overflow-y-scroll bg-gray-200 pb-32 pt-8 dark:bg-gray-950">
 	<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-gray-500/80">My Lists</h2>
 	<div class="mr-8">
-		{#each listsWithTodos as list (list.id)}
-			{@const selected = $page.params.listId === list.id ?? ""}
-			<!-- transition:fly={{ duration: 300, x: -200, delay: 100 * i }} -->
-			<div animate:flip={{ duration: 300 }}>
-				{#if list.name === "Shared"}
-					<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-gray-500/80">
-						Shared
-					</h2>
-				{:else}
+		{#if listsWithTodos.length > 0}
+			{#each listsWithTodos as list (list.id)}
+				{@const selected = $page.params.listId === list.id ?? ""}
+				<!-- transition:fly={{ duration: 300, x: -200, delay: 100 * i }} -->
+				<div animate:flip={{ duration: 300 }}>
 					<div
 						class="group flex items-center overflow-hidden whitespace-nowrap rounded-r-full
 				{selected
@@ -85,9 +81,16 @@
 							</button>
 						{/if}
 					</div>
-				{/if}
-			</div>
-		{/each}
+				</div>
+			{/each}
+		{:else}
+			{@const n = 5}
+			{#each { length: n } as _, i}
+				<div style="opacity: {100 - (100 / n) * i}%">
+					<div class="mx-4 my-6 h-5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
+				</div>
+			{/each}
+		{/if}
 	</div>
 	<button
 		on:click={createNewList}

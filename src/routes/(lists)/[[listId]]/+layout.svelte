@@ -10,6 +10,6 @@
 	<title>{$todoList?.name ?? "Todos"} | donequick</title>
 </svelte:head>
 
-{#if data.user}
-	<TodoList_ user={data.user} todos={data.todos} meta={data.todoList} />
-{/if}
+<TodoList_ user={data.user} todos={data.todos} meta={data.todoList} />
+
+<slot />

@@ -11,21 +11,21 @@
 	import type { User } from "firebase/auth";
 	import { serverTimestamp, updateDoc } from "firebase/firestore";
 	import { LexoRank } from "lexorank";
+	import { PlusIcon, SquareIcon } from "svelte-feather-icons";
 	import { persisted } from "svelte-local-storage-store";
 	import { flip } from "svelte/animate";
 	import { writable } from "svelte/store";
-	import { fade, fly } from "svelte/transition";
+	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
-	import { backOut } from "svelte/easing";
 
-	export let todos: CollectionStore<Todo>;
-	export let meta: DocStore<TodoList> | null;
-	export let user: User;
+	export let todos: CollectionStore<Todo> | undefined;
+	export let meta: DocStore<TodoList> | null | undefined;
+	export let user: User | null;
 
 	// only show share button if its not the default list and the user is the owner
-	$: showShareBtn = $meta && $meta.ownerId === user.uid;
+	$: showShareBtn = $meta && $meta.ownerId === user?.uid;
 	$: members = $meta?.members ?? [];
-	$: displayedMembers = members.filter((member) => member.id !== user.uid);
+	$: displayedMembers = members.filter((member) => member.id !== user?.uid);
 	$: membersWithShareBtn = [
 		...(showShareBtn ? [{ id: "sharebtn" as const }] : []),
 		...displayedMembers,
@@ -39,10 +39,11 @@
 
 	const hideCompleted = persisted("hideCompleted", true);
 
-	let filteredTodos = $todos.filter((todo) => !($hideCompleted && todo.done));
-	$: filteredTodos = $todos.filter((todo) => !($hideCompleted && todo.done));
+	let filteredTodos = $todos?.filter((todo) => !($hideCompleted && todo.done));
+	$: filteredTodos = $todos?.filter((todo) => !($hideCompleted && todo.done));
 
 	function getFirstRank() {
+		if (!filteredTodos) return "";
 		if (filteredTodos.length === 0) {
 			return LexoRank.middle().toString();
 		}
@@ -58,7 +59,9 @@
 		indent: 0,
 	};
 
-	$: todosWithBlank = [...filteredTodos, blankTodo].sort((a, b) => (a.rank < b.rank ? -1 : 1));
+	$: todosWithBlank = filteredTodos
+		? [...filteredTodos, blankTodo].sort((a, b) => (a.rank < b.rank ? -1 : 1))
+		: [];
 	$: len = todosWithBlank.length;
 
 	const focusedTodoId = writable<string | null>(null);
@@ -108,6 +111,7 @@
 			}
 		} else if (key === "Enter") {
 			if (document.activeElement !== document.body && $focusedTodoId === null) return;
+			if (!user) return;
 			// move the blank todo above/below the focused todo, then focus it
 			// (or if there isn't a focused todo, focus the blank todo)
 
@@ -147,12 +151,14 @@
 	}
 
 	function onNewTodo(event: { detail: { content: string; indent: number } }) {
+		if (!todos) return;
 		const { content, indent } = event.detail;
 
 		todos.add(createTodo(content, blankTodo.rank, indent));
 	}
 
 	function clearCompleted() {
+		if (!$todos) return;
 		const batch = newBatch();
 		$todos.forEach((todo) => {
 			if (todo.done) batch.delete(todo.ref);
@@ -178,7 +184,7 @@
 	<div class="flex select-none">
 		{#each membersWithShareBtn as member (member.id)}
 			<div class="flex">
-				{#if member.id === "sharebtn"}
+				{#if member.id === "sharebtn" && meta && user}
 					<ShareBtn {meta} {user} />
 				{:else if "photoURL" in member}
 					<MemberAvatar {member} />
@@ -189,32 +195,57 @@
 </div>
 
 <div class="ml-auto w-max">
-	{#if !$hideCompleted}
-		<button
-			transition:fly={{ duration: 150, x: 20 }}
-			on:click={clearCompleted}
-			class="mr-4 rounded-full bg-gray-200 px-4 text-gray-500 hover:bg-gray-300 hover:text-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-gray-400"
-		>
-			Clear completed
-		</button>
+	{#if user}
+		{#if !$hideCompleted}
+			<button
+				transition:fly={{ duration: 150, x: 20 }}
+				on:click={clearCompleted}
+				class="mr-4 rounded-full bg-gray-200 px-4 text-gray-500 hover:bg-gray-300 hover:text-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-gray-400"
+			>
+				Clear completed
+			</button>
+		{/if}
+		<label class="cursor-pointer">
+			<span class="mr-2 text-gray-400 marker:bg-gray-950 dark:text-gray-600">Hide completed</span>
+			<input bind:checked={$hideCompleted} type="checkbox" />
+		</label>
+	{:else}
+		<div class="h-3 w-32 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
 	{/if}
-	<label class="cursor-pointer">
-		<span class="mr-2 text-gray-400 marker:bg-gray-950 dark:text-gray-600">Hide completed</span>
-		<input bind:checked={$hideCompleted} type="checkbox" />
-	</label>
 </div>
 
 <ul class="mb-[60vh] mt-4">
-	{#each todosWithBlank as todo (todo.id)}
-		<li class="flex flex-col" animate:flip={{ duration: todo.id === $focusedTodoId ? 0 : 100 }}>
-			<Todo_
-				{todo}
-				listName={$meta?.name}
-				id={todo.id}
-				{focusedTodoId}
-				on:newtodo={onNewTodo}
-				on:updated={onListUpdated}
-			/>
-		</li>
-	{/each}
+	{#if todosWithBlank.length > 0}
+		{#each todosWithBlank as todo (todo.id)}
+			<li class="flex flex-col" animate:flip={{ duration: todo.id === $focusedTodoId ? 0 : 100 }}>
+				<Todo_
+					{todo}
+					listName={$meta?.name}
+					id={todo.id}
+					{focusedTodoId}
+					on:newtodo={onNewTodo}
+					on:updated={onListUpdated}
+				/>
+			</li>
+		{/each}
+	{:else}
+		{@const n = 10}
+		{#each { length: n } as _, i}
+			<div style="opacity: {100 - (100 / n) * i}%">
+				<div class="ml-2 flex h-8 animate-pulse items-center gap-2">
+					{#if i === 0}
+						<PlusIcon class="h-full text-gray-200 dark:text-gray-800" />
+					{:else}
+						<SquareIcon class="h-full text-gray-200 dark:text-gray-800" />
+						<div class="h-4 flex-1">
+							<div
+								style="width: {Math.random() * 40 + 20}%"
+								class="h-full rounded-full bg-gray-200 dark:bg-gray-800"
+							/>
+						</div>
+					{/if}
+				</div>
+			</div>
+		{/each}
+	{/if}
 </ul>

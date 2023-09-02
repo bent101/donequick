@@ -1,8 +1,11 @@
 import { browser } from "$app/environment";
+
 import { auth } from "$lib/firebase";
 import { redirect } from "@sveltejs/kit";
 
-export async function load() {
+export const prerender = true;
+
+export async function load({ url }) {
 	if (!browser) {
 		return {
 			user: null,
@@ -11,7 +14,7 @@ export async function load() {
 
 	await auth.authStateReady();
 
-	if (!auth.currentUser) throw redirect(301, "/signin");
+	if (!auth.currentUser && url.pathname !== "/signin") throw redirect(302, "/signin");
 
 	const user = auth.currentUser;
 
