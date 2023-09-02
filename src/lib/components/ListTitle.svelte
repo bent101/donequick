@@ -60,5 +60,5 @@
 	disabled={!meta}
 	on:blur={onTitleInputBlur}
 	on:keydown={onTitleInputKeydown}
-	class="w-80 min-w-min overflow-clip overflow-ellipsis rounded-full border-2 border-transparent bg-transparent px-4 text-lg font-bold text-gray-500 outline-0 enabled:border-gray-200 enabled:hover:border-gray-300 enabled:focus:border-blue-500 dark:text-gray-400 dark:enabled:border-gray-700 dark:enabled:hover:border-gray-600 dark:enabled:focus:border-blue-500"
+	class="w-80 min-w-min overflow-clip overflow-ellipsis rounded-full border-2 border-transparent bg-transparent px-4 text-lg font-bold text-gray-500 outline-0 enabled:border-gray-200 enabled:hover:border-gray-300 enabled:focus:border-blue-500 dark:text-gray-400 dark:enabled:border-gray-700 dark:enabled:hover:border-gray-600 dark:enabled:focus:border-blue-400"
 />
