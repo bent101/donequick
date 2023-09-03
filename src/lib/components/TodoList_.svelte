@@ -30,9 +30,9 @@
 			case "idle":
 				return "Hold Shift for keyboard shortcuts";
 			case "focused":
-				return "Press Command + Enter to mark as done";
+				return "Command + Enter to mark as done • Arrow keys to move";
 			case "editing":
-				return "Press Enter or Esc to finish editing";
+				return "Press Enter or Shift-Enter to finish editing";
 		}
 	}
 
