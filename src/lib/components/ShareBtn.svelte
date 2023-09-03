@@ -48,7 +48,6 @@
 			inviteError = "";
 		} catch (error: any) {
 			inviteError = error?.message ?? "";
-			console.error(error);
 		}
 		inviteInput = "";
 		inviteInputEl?.focus();

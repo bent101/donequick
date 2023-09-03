@@ -23,16 +23,18 @@
 	export let meta: DocStore<TodoList> | null | undefined;
 	export let user: User | null;
 
-	let state: "idle" | "focused" | "editing" = "idle";
+	let state: "idle" | "focused" | "focusedNew" | "editing" = "idle";
 
 	function getHint() {
 		switch (state) {
 			case "idle":
 				return "Hold Shift for keyboard shortcuts";
 			case "focused":
-				return "Command + Enter to mark as done • Arrow keys to move";
+				return "⌘ Enter to mark as done • Arrow keys to move";
+			case "focusedNew":
+				return "Tab to indent • Alt + Arrow keys to swap";
 			case "editing":
-				return "Press Enter or Shift-Enter to finish editing";
+				return "Enter or Shift-Enter to finish editing";
 		}
 	}
 
@@ -170,7 +172,7 @@
 	$: if ($focusedTodoId === null) {
 		state = "idle";
 	} else {
-		state = "focused";
+		state = $focusedTodoId === blankTodo.id ? "focusedNew" : "focused";
 	}
 
 	function onNewTodo(event: { detail: { content: string; indent: number } }) {
@@ -197,9 +199,32 @@
 		blankTodo.rank = getFirstRank();
 		blankTodo.indent = 0;
 	});
+
+	function handleSwap({ detail }: { detail: { id: string; dir: -1 | 1 } }) {
+		// swaps the positions (lexoranks) of `a` and `b` (at indices `i` and `j`)
+		const { id, dir } = detail;
+		const i = todosWithBlank.findIndex((todo) => todo.id === id);
+		if (i === -1) return;
+		const j = i + dir;
+		const a = todosWithBlank[i]!;
+		const b = todosWithBlank[j];
+		if (!b) return;
+
+		const temp = a.rank;
+		a.rank = b.rank;
+		b.rank = temp;
+
+		if ("ref" in a) {
+			updateDoc(a.ref, { rank: a.rank });
+		}
+		if ("ref" in b) {
+			updateDoc(b.ref, { rank: b.rank });
+		}
+	}
 </script>
 
 <svelte:window on:keydown={onWindowKeydown} />
+<svelte:body on:focus={() => (state = "idle")} />
 
 <div class="mb-4 flex h-10 select-text items-stretch gap-2">
 	<ListTitle {meta} />
@@ -244,7 +269,7 @@
 <ul class="mb-[60vh] mt-4">
 	{#if todosWithBlank.length > 0}
 		{#each todosWithBlank as todo, i (todo.id)}
-			<li class="flex flex-col" animate:flip={{ duration: todo.id === $focusedTodoId ? 0 : 100 }}>
+			<li class="flex flex-col" animate:flip={{ duration: 100 }}>
 				<Todo_
 					{todo}
 					listName={$meta?.name}
@@ -254,6 +279,7 @@
 					on:newtodo={onNewTodo}
 					on:updated={onListUpdated}
 					on:edited={() => (state = "editing")}
+					on:swap={handleSwap}
 				/>
 			</li>
 		{/each}

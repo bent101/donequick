@@ -30,6 +30,7 @@
 		}
 	} else {
 		inputEl?.blur();
+		checkButton?.blur();
 	}
 
 	let dispatch = createEventDispatcher();
@@ -43,7 +44,7 @@
 
 	function onExternallyCompleted() {
 		input = todo.content;
-		inputEl?.blur();
+		$focusedTodoId = null;
 	}
 	$: if (todo.done) onExternallyCompleted(); // will also call when you complete a todo, but won't change anything
 
@@ -59,11 +60,10 @@
 
 	function onInputKeydown(event: KeyboardEvent) {
 		const { key } = event;
-		if (key === "Escape") {
-			inputEl?.blur();
-		}
 
-		if (key === "Enter") {
+		if (key === "Escape") {
+			$focusedTodoId = null;
+		} else if (key === "Enter") {
 			if (!("ref" in todo)) {
 				submitTodo();
 			}
@@ -78,6 +78,12 @@
 					dispatch("updated");
 				}
 			}
+		} else if (event.altKey) {
+			if (key === "ArrowUp" || key === "ArrowDown") {
+				event.preventDefault();
+				event.stopPropagation();
+				dispatch("swap", { id, dir: key === "ArrowUp" ? -1 : 1 });
+			}
 		}
 	}
 
@@ -88,10 +94,6 @@
 
 	function onInputBlur() {
 		inputIsFocused = false;
-
-		if ($focusedTodoId === id) {
-			$focusedTodoId = null;
-		}
 
 		submitTodo();
 	}
