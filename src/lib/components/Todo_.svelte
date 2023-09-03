@@ -5,9 +5,12 @@
 	import { createEventDispatcher } from "svelte";
 	import { CheckIcon, PlusIcon, SquareIcon, Trash2Icon } from "svelte-feather-icons";
 	import type { Writable } from "svelte/store";
+	import Kbd from "./ui/Kbd.svelte";
+	import { isShiftDown } from "$lib/stores";
 
 	export let todo: WithRefAndId<Todo> | Todo;
 	export let id: string;
+	export let focusHotkey: string | null;
 	export let focusedTodoId: Writable<string | null>;
 	export let listName: string | undefined;
 
@@ -16,6 +19,8 @@
 	let self: HTMLElement | undefined;
 
 	let input = todo.content; // bound to <input>
+
+	$: input, dispatch("edited");
 
 	$: if ($focusedTodoId === id) {
 		if (todo.done) {
@@ -112,7 +117,25 @@
 			}
 		}
 	}
+
+	function onCheckBtnClicked() {
+		if ("ref" in todo) {
+			todo.done = !todo.done;
+			updateDoc(todo.ref, { done: todo.done });
+			dispatch("updated");
+		}
+	}
+
+	function handleKeypress(event: KeyboardEvent & { currentTarget: EventTarget & Window }) {
+		if (document.activeElement !== document.body) return;
+		event.preventDefault();
+		if (event.key === focusHotkey) {
+			inputEl?.focus();
+		}
+	}
 </script>
+
+<svelte:window on:keypress={handleKeypress} />
 
 <div class="flex min-w-max select-text justify-stretch">
 	{#each { length: todo.indent ?? 0 } as _, i}
@@ -125,19 +148,12 @@
 		}}
 		class="group flex h-8 flex-1 cursor-text scroll-m-32 items-stretch gap-2 rounded-full px-2 transition-shadow duration-100"
 	>
-		<button
-			class="select-none"
-			bind:this={checkButton}
-			tabindex="-1"
-			on:click={() => {
-				if ("ref" in todo) {
-					todo.done = !todo.done;
-					updateDoc(todo.ref, { done: todo.done });
-					dispatch("updated");
-				}
-			}}
-		>
-			{#if todo.done}
+		<button class="select-none" bind:this={checkButton} tabindex="-1" on:click={onCheckBtnClicked}>
+			{#if $isShiftDown && focusHotkey && "ref" in todo}
+				<div class="w-6">
+					<Kbd light>{focusHotkey}</Kbd>
+				</div>
+			{:else if todo.done}
 				<CheckIcon class="h-full text-gray-400 hover:text-gray-500 dark:text-gray-600" />
 			{:else if "ref" in todo || inputIsFocused}
 				<SquareIcon
@@ -150,21 +166,35 @@
 			{/if}
 		</button>
 
-		<input
-			spellcheck="false"
-			bind:this={inputEl}
-			bind:value={input}
-			on:focus={onInputFocus}
-			on:blur={onInputBlur}
-			on:keydown={onInputKeydown}
-			disabled={todo.done}
-			placeholder={listName ? `Add to "${listName}"` : `Add a todo`}
-			class="mx-2 my-1 flex-1 border-b-2 {'ref' in todo
-				? 'border-transparent'
-				: 'select-none border-gray-300 dark:border-gray-700'} bg-transparent outline-none placeholder:text-gray-400 focus:placeholder:text-transparent enabled:text-gray-700 enabled:focus:border-gray-500 disabled:pointer-events-none disabled:text-gray-400 disabled:line-through group-hover:border-gray-300 enabled:group-hover:focus:border-gray-500 dark:placeholder:text-gray-600 dark:enabled:text-gray-300 dark:disabled:text-gray-600 dark:group-hover:border-gray-700 dark:enabled:group-hover:focus:border-gray-500"
-		/>
-
-		<!-- <div class="font-mono text-gray-400">{todo.rank}</div> -->
+		<div class="relative mx-2 my-1 flex-1">
+			<input
+				spellcheck="false"
+				bind:this={inputEl}
+				bind:value={input}
+				on:focus={onInputFocus}
+				on:blur={onInputBlur}
+				on:keydown={onInputKeydown}
+				disabled={todo.done}
+				class="w-full border-b-2 {'ref' in todo
+					? 'border-transparent'
+					: 'select-none border-gray-300 dark:border-gray-700'} bg-transparent outline-none enabled:text-gray-700 enabled:focus:border-gray-500 disabled:pointer-events-none disabled:text-gray-400 disabled:line-through group-hover:border-gray-300 enabled:group-hover:focus:border-gray-500 dark:enabled:text-gray-300 dark:disabled:text-gray-600 dark:group-hover:border-gray-700 dark:enabled:group-hover:focus:border-gray-500"
+			/>
+			<div
+				class="absolute inset-y-0 left-0 text-gray-400 dark:text-gray-600 {!inputIsFocused &&
+				input === ''
+					? 'visible'
+					: 'invisible'}"
+			>
+				<span class="inline-block">
+					{listName ? `Add to "${listName}"` : `Add a todo`}
+				</span>
+				<span class="ml-1 inline-block -translate-y-1">
+					{#if !("ref" in todo)}
+						<Kbd light>↵</Kbd>
+					{/if}
+				</span>
+			</div>
+		</div>
 
 		<button
 			tabindex="-1"

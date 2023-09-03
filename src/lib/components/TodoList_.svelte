@@ -8,6 +8,7 @@
 	import { afterNavigate, beforeNavigate } from "$app/navigation";
 	import { newBatch, type CollectionStore, type DocStore } from "$lib/firebase";
 	import { createTodo, type Todo, type TodoList } from "$lib/models";
+	import { randomNums } from "$lib/random-nums";
 	import type { User } from "firebase/auth";
 	import { serverTimestamp, updateDoc } from "firebase/firestore";
 	import { LexoRank } from "lexorank";
@@ -17,11 +18,26 @@
 	import { writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
-	import { randomNums } from "$lib/random-nums";
 
 	export let todos: CollectionStore<Todo> | undefined;
 	export let meta: DocStore<TodoList> | null | undefined;
 	export let user: User | null;
+
+	let state: "idle" | "focused" | "editing" = "idle";
+
+	function getHint() {
+		switch (state) {
+			case "idle":
+				return "Hold Shift for keyboard shortcuts";
+			case "focused":
+				return "Press Command + Enter to mark as done";
+			case "editing":
+				return "Press Enter or Esc to finish editing";
+		}
+	}
+
+	let hint = "";
+	$: state, (hint = getHint());
 
 	// only show share button if its not the default list and the user is the owner
 	$: showShareBtn = $meta && $meta.ownerId === user?.uid;
@@ -151,6 +167,12 @@
 		}
 	}
 
+	$: if ($focusedTodoId === null) {
+		state = "idle";
+	} else {
+		state = "focused";
+	}
+
 	function onNewTodo(event: { detail: { content: string; indent: number } }) {
 		if (!todos) return;
 		const { content, indent } = event.detail;
@@ -177,7 +199,7 @@
 	});
 </script>
 
-<svelte:window on:keydown={onWindowKeydown} />
+<svelte:window on:keydown={onWindowKeydown} on:keypress={onWindowKeypress} />
 
 <div class="mb-4 flex h-10 select-text items-stretch gap-2">
 	<ListTitle {meta} />
@@ -208,7 +230,11 @@
 		{/if}
 		<label class="cursor-pointer">
 			<span class="mr-2 text-gray-400 marker:bg-gray-950 dark:text-gray-600">Hide completed</span>
-			<input bind:checked={$hideCompleted} type="checkbox" />
+			<input
+				bind:checked={$hideCompleted}
+				on:click={(event) => event.currentTarget.blur()}
+				type="checkbox"
+			/>
 		</label>
 	{:else}
 		<div class="mb-[29px] h-3 w-32 rounded-full bg-gray-200 dark:bg-gray-800" />
@@ -217,15 +243,17 @@
 
 <ul class="mb-[60vh] mt-4">
 	{#if todosWithBlank.length > 0}
-		{#each todosWithBlank as todo (todo.id)}
+		{#each todosWithBlank as todo, i (todo.id)}
 			<li class="flex flex-col" animate:flip={{ duration: todo.id === $focusedTodoId ? 0 : 100 }}>
 				<Todo_
 					{todo}
 					listName={$meta?.name}
 					id={todo.id}
 					{focusedTodoId}
+					focusHotkey={"ASDFGHJKLQWERTYUIOPZXCVBNM"[i] ?? null}
 					on:newtodo={onNewTodo}
 					on:updated={onListUpdated}
+					on:edited={() => (state = "editing")}
 				/>
 			</li>
 		{/each}
@@ -250,3 +278,11 @@
 		{/each}
 	{/if}
 </ul>
+
+{#if user}
+	<div
+		class="fixed inset-x-0 bottom-2 mx-auto w-max rounded-full bg-white px-6 py-2 text-sm font-semibold text-gray-400 dark:bg-gray-900 dark:text-gray-500"
+	>
+		{hint}
+	</div>
+{/if}

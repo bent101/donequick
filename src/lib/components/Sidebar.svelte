@@ -7,6 +7,8 @@
 	import { doc, setDoc, updateDoc } from "firebase/firestore";
 	import { PlusIcon, Trash2Icon } from "svelte-feather-icons";
 	import { flip } from "svelte/animate";
+	import Kbd from "./ui/Kbd.svelte";
+	import { isShiftDown } from "$lib/stores";
 
 	export let user: User | null;
 	export let lists: WithRefAndId<TodoList>[] | undefined;
@@ -48,17 +50,24 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent & { currentTarget: EventTarget & Window }) {
-		if (document.activeElement !== document.body) return;
-		const num = +event.key;
-		if (isNaN(num) || num == 0) return;
-		const selectedList = listsWithTodos[num - 1];
+		if (!$isShiftDown || !event.code.startsWith("Digit") || event.code === "Digit0") {
+			return;
+		}
+
+		const numPressed = +event.code.charAt(event.code.length - 1);
+
+		const selectedList = listsWithTodos[numPressed - 1];
 		if (!selectedList) return;
 		const url = `/${selectedList.id ?? ""}`;
 		goto(url);
 	}
+
+	function handleKeyup(event: KeyboardEvent & { currentTarget: EventTarget & Window }) {
+		if (event.key == "Shift") $isShiftDown = false;
+	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window on:keydown={handleKeydown} on:keyup={handleKeyup} />
 
 <aside class="w-96 overflow-y-scroll bg-gray-200 pb-32 pt-8 dark:bg-gray-950">
 	<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-gray-500/80">My Lists</h2>
@@ -80,12 +89,8 @@
 							href="/{list.id ?? ''}"
 						>
 							<span class="inline-flex w-12 items-center justify-center">
-								{#if hotkey && !selected}
-									<kbd
-										class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-b-2 border-gray-400 bg-gray-300 font-mono font-bold text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"
-									>
-										{hotkey}
-									</kbd>
+								{#if hotkey && !selected && $isShiftDown}
+									<Kbd>{hotkey}</Kbd>
 								{/if}
 							</span>
 							{list.name}
