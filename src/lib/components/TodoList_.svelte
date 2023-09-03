@@ -32,9 +32,9 @@
 			case "focused":
 				return "⌘ Enter to mark as done • Arrow keys to move";
 			case "focusedNew":
-				return "Tab to indent • Alt + Arrow keys to swap";
+				return "Alt + Arrow keys to swap • Tab to indent";
 			case "editing":
-				return "Enter or Shift-Enter to finish editing";
+				return "Enter or Esc to finish editing";
 		}
 	}
 
