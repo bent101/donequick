@@ -199,7 +199,7 @@
 	});
 </script>
 
-<svelte:window on:keydown={onWindowKeydown} on:keypress={onWindowKeypress} />
+<svelte:window on:keydown={onWindowKeydown} />
 
 <div class="mb-4 flex h-10 select-text items-stretch gap-2">
 	<ListTitle {meta} />

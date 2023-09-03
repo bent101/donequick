@@ -69,7 +69,7 @@
 
 <svelte:window on:keydown={handleKeydown} on:keyup={handleKeyup} />
 
-<aside class="w-96 overflow-y-scroll bg-gray-200 pb-32 pt-8 dark:bg-gray-950">
+<aside class="w-80 overflow-y-scroll bg-gray-200 pb-32 pt-8 dark:bg-gray-950 lg:w-96">
 	<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-gray-500/80">My Lists</h2>
 	<div class="mr-8">
 		{#if listsWithTodos.length > 0}
@@ -118,8 +118,8 @@
 	</div>
 	<button
 		on:click={createNewList}
-		class="fixed bottom-3 left-[13.5rem] z-10 rounded-full border-b-4 border-gray-800 bg-gray-700 py-3 pl-3 pr-6 text-xl font-bold text-gray-100 shadow-lg shadow-gray-900/60 transition-all duration-100 active:border-b-0 dark:border-gray-900 dark:bg-gray-800 dark:shadow-none"
+		class="fixed bottom-3 left-3 z-10 rounded-full border-b-4 border-gray-800 bg-gray-700 py-3 pl-3 pr-6 text-xl font-bold text-gray-100 shadow-lg shadow-gray-900/60 transition-all duration-100 active:border-b-0 dark:border-gray-900 dark:bg-gray-800 dark:shadow-none"
 	>
-		<PlusIcon class="-trangray-y-0.5 inline w-9 text-gray-400 dark:text-gray-600" />New List
+		<PlusIcon class="inline w-9 -translate-y-0.5 text-gray-400 dark:text-gray-600" />New List
 	</button>
 </aside>
