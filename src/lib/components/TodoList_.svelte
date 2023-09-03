@@ -155,17 +155,21 @@
 				return;
 			}
 
-			const neighbor = todosWithBlank[i + (event.shiftKey ? -1 : 1)];
-			const newRank = neighbor
-				? LexoRank.parse(focusedTodo.rank).between(LexoRank.parse(neighbor.rank))
-				: i === todosWithBlank.length - 1
-				? LexoRank.parse(focusedTodo.rank).genNext()
-				: LexoRank.parse(focusedTodo.rank).genPrev();
+			try {
+				const neighbor = todosWithBlank[i + (event.shiftKey ? -1 : 1)];
+				const newRank = neighbor
+					? LexoRank.parse(focusedTodo.rank).between(LexoRank.parse(neighbor.rank))
+					: i === todosWithBlank.length - 1
+					? LexoRank.parse(focusedTodo.rank).genNext()
+					: LexoRank.parse(focusedTodo.rank).genPrev();
 
-			blankTodo.rank = newRank.toString();
-			blankTodo.indent = focusedTodo.indent;
+				blankTodo.rank = newRank.toString();
+				blankTodo.indent = focusedTodo.indent;
 
-			$focusedTodoId = blankTodo.id;
+				$focusedTodoId = blankTodo.id;
+			} catch (error) {
+				console.error(error);
+			}
 		}
 	}
 
