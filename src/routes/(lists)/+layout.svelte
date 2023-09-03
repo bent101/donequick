@@ -36,7 +36,7 @@
 				<img src={user.photoURL} alt="" class="h-full rounded-full" />
 			</div>
 		{:else}
-			<div class="flex h-full animate-pulse items-center gap-3">
+			<div class="flex h-full items-center gap-3">
 				<div class="flex flex-col items-end justify-center">
 					<div class="h-3 w-36 rounded-full bg-gray-300 dark:bg-gray-700" />
 					<div class="mt-1">

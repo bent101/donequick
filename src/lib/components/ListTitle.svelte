@@ -52,7 +52,7 @@
 
 {#if meta === undefined}
 	<div class="w-80 px-4 py-2">
-		<div class="h-full animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
+		<div class="h-full rounded-full bg-gray-200 dark:bg-gray-800" />
 	</div>
 {:else}
 	<input

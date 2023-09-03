@@ -17,6 +17,7 @@
 	import { writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
+	import { randomNums } from "$lib/random-nums";
 
 	export let todos: CollectionStore<Todo> | undefined;
 	export let meta: DocStore<TodoList> | null | undefined;
@@ -210,7 +211,7 @@
 			<input bind:checked={$hideCompleted} type="checkbox" />
 		</label>
 	{:else}
-		<div class="h-3 w-32 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
+		<div class="mb-[29px] h-3 w-32 rounded-full bg-gray-200 dark:bg-gray-800" />
 	{/if}
 </div>
 
@@ -232,14 +233,14 @@
 		{@const n = 10}
 		{#each { length: n } as _, i}
 			<div style="opacity: {100 - (100 / n) * i}%">
-				<div class="ml-2 flex h-8 animate-pulse items-center gap-2">
+				<div class="ml-2 flex h-8 items-center gap-2">
 					{#if i === 0}
 						<PlusIcon class="h-full text-gray-200 dark:text-gray-800" />
 					{:else}
 						<SquareIcon class="h-full text-gray-200 dark:text-gray-800" />
 						<div class="h-4 flex-1">
 							<div
-								style="width: {Math.random() * 40 + 20}%"
+								style="width: {randomNums[i] * 40 + 20}%"
 								class="h-full rounded-full bg-gray-200 dark:bg-gray-800"
 							/>
 						</div>

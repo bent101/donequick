@@ -74,8 +74,8 @@
 						{#if "ownerId" in list}
 							<button
 								on:click={() => deleteList(list)}
-								class="invisible mr-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full group-hover:visible
-						{selected ? 'hover:bg-gray-200/20' : 'hover:bg-gray-600/20'}"
+								class="mr-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full group-hover:visible
+						{selected ? 'visible hover:bg-gray-200/20' : 'invisible hover:bg-gray-600/20'}"
 							>
 								<Trash2Icon class="p-0.5" />
 							</button>
@@ -87,7 +87,7 @@
 			{@const n = 5}
 			{#each { length: n } as _, i}
 				<div style="opacity: {100 - (100 / n) * i}%">
-					<div class="mx-4 my-6 h-5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
+					<div class="mx-4 my-6 h-5 rounded-full bg-gray-300 dark:bg-gray-800" />
 				</div>
 			{/each}
 		{/if}
