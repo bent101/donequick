@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LoadingBar from "$lib/components/LoadingBar.svelte";
+
 	import "../app.postcss";
 </script>
 
@@ -8,3 +10,5 @@
 </svelte:head>
 
 <slot />
+
+<LoadingBar />

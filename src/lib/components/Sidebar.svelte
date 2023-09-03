@@ -47,16 +47,26 @@
 		});
 	}
 
-	// let mounted = false;
-	// onMount(() => (mounted = true));
+	function handleKeydown(event: KeyboardEvent & { currentTarget: EventTarget & Window }) {
+		if (document.activeElement !== document.body) return;
+		const num = +event.key;
+		if (isNaN(num) || num == 0) return;
+		const selectedList = listsWithTodos[num - 1];
+		if (!selectedList) return;
+		const url = `/${selectedList.id ?? ""}`;
+		goto(url);
+	}
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <aside class="w-96 overflow-y-scroll bg-gray-200 pb-32 pt-8 dark:bg-gray-950">
 	<h2 class="my-4 ml-12 mt-8 font-extrabold uppercase tracking-wider text-gray-500/80">My Lists</h2>
 	<div class="mr-8">
 		{#if listsWithTodos.length > 0}
-			{#each listsWithTodos as list (list.id)}
+			{#each listsWithTodos as list, i (list.id)}
 				{@const selected = $page.params.listId === list.id ?? ""}
+				{@const hotkey = i + 1 < 10 ? `${i + 1}` : null}
 				<!-- transition:fly={{ duration: 300, x: -200, delay: 100 * i }} -->
 				<div animate:flip={{ duration: 300 }}>
 					<div
@@ -66,9 +76,18 @@
 							: 'text-gray-600 hover:bg-gray-300 dark:text-gray-400 dark:hover:bg-gray-900'}"
 					>
 						<a
-							class="block flex-1 self-stretch overflow-hidden overflow-ellipsis py-2 pl-12 pr-1 text-lg font-semibold"
+							class="block flex-1 self-stretch overflow-hidden overflow-ellipsis py-2 pr-1 text-lg font-semibold"
 							href="/{list.id ?? ''}"
 						>
+							<span class="inline-flex w-12 items-center justify-center">
+								{#if hotkey && !selected}
+									<kbd
+										class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-b-2 border-gray-400 bg-gray-300 font-mono font-bold text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"
+									>
+										{hotkey}
+									</kbd>
+								{/if}
+							</span>
 							{list.name}
 						</a>
 						{#if "ownerId" in list}
