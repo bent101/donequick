@@ -95,6 +95,14 @@
 	function onInputBlur() {
 		inputIsFocused = false;
 
+		if ($focusedTodoId === id) {
+			setTimeout(() => {
+				if ($focusedTodoId === id && !inputIsFocused) {
+					$focusedTodoId = null;
+				}
+			}, 1);
+		}
+
 		submitTodo();
 	}
 
@@ -182,7 +190,7 @@
 					: 'select-none border-gray-300 dark:border-gray-700'} bg-transparent outline-none enabled:text-gray-700 enabled:focus:border-gray-500 disabled:pointer-events-none disabled:text-gray-400 disabled:line-through group-hover:border-gray-300 enabled:group-hover:focus:border-gray-500 dark:enabled:text-gray-300 dark:disabled:text-gray-600 dark:group-hover:border-gray-700 dark:enabled:group-hover:focus:border-gray-500"
 			/>
 			<div
-				class="absolute inset-y-0 left-0 text-gray-400 dark:text-gray-600 {!inputIsFocused &&
+				class="absolute inset-y-0 left-0 select-none text-gray-400 dark:text-gray-600 {!inputIsFocused &&
 				input === ''
 					? 'visible'
 					: 'invisible'}"
