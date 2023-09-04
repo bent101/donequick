@@ -98,7 +98,9 @@
 						<button
 							on:click={() => deleteList(list)}
 							class="mr-1 grid h-9 w-9 cursor-pointer place-items-center rounded-full group-hover:visible
-						{selected ? 'visible hover:bg-gray-200/20' : 'invisible hover:bg-gray-600/20'}"
+						{selected
+								? 'visible hover:bg-gray-200/20'
+								: 'invisible hover:bg-gray-600/20 [@media(any-hover:none)]:visible'}"
 						>
 							<Trash2Icon class="p-0.5" />
 						</button>

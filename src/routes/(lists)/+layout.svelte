@@ -31,7 +31,7 @@
 			on:click={() => {
 				showingSidebar = false;
 			}}
-			class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm focus:outline-none"
+			class="fixed inset-0 z-50 bg-gray-950/80 backdrop-blur-sm focus:outline-none"
 		/>
 	{/if}
 	{#if showingSidebar || $lg}
@@ -45,7 +45,7 @@
 		</aside>
 	{/if}
 
-	<main class="relative flex-1 overflow-y-scroll p-8">
+	<main class="relative flex-1 overflow-y-scroll px-2 py-8 lg:p-8">
 		<div class="max-w-4xl">
 			<slot />
 		</div>

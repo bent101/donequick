@@ -257,7 +257,7 @@
 				Clear completed
 			</button>
 		{/if}
-		<label class="cursor-pointer">
+		<label class="mr-4 cursor-pointer">
 			<span class="mr-2 text-gray-400 marker:bg-gray-950 dark:text-gray-600">Hide completed</span>
 			<input
 				bind:checked={$hideCompleted}

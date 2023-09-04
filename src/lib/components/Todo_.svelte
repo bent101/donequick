@@ -210,7 +210,7 @@
 			tabindex="-1"
 			disabled={!("ref" in todo)}
 			on:click|stopPropagation={deleteTodo}
-			class="select-none text-transparent enabled:group-hover:text-gray-400 enabled:group-hover:hover:text-gray-500 enabled:group-[&:has(>input:focus)]:text-gray-400 dark:enabled:group-hover:text-gray-600 dark:enabled:group-hover:hover:text-gray-500 dark:enabled:group-[&:has(>input:focus)]:text-gray-600"
+			class="select-none text-transparent enabled:group-hover:text-gray-400 enabled:group-hover:hover:text-gray-500 enabled:group-[&:has(>input:focus)]:text-gray-400 dark:enabled:group-hover:text-gray-600 dark:enabled:group-hover:hover:text-gray-500 dark:enabled:group-[&:has(>input:focus)]:text-gray-600 [@media(any-hover:none)]:enabled:text-gray-400 [@media(any-hover:none)]:enabled:dark:text-gray-600"
 		>
 			<Trash2Icon />
 		</button>
