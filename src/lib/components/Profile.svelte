@@ -18,7 +18,9 @@
 		</div>
 
 		<div class="flex flex-col justify-center">
-			<div class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+			<div
+				class="overflow-ellipsis whitespace-nowrap text-sm font-semibold text-gray-600 dark:text-gray-300"
+			>
 				{user.email}
 			</div>
 			<div class="-mt-1">

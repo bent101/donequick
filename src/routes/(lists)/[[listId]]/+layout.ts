@@ -1,7 +1,6 @@
-import { getCollectionStore, getDocStore, type DocStore } from "$lib/firebase";
+import { getCollectionStore, getDocStore } from "$lib/firebase";
 import type { Todo, TodoList } from "$lib/models";
 import { redirect } from "@sveltejs/kit";
-import type { FirebaseError } from "firebase/app";
 import { orderBy } from "firebase/firestore";
 
 export const prerender = false;
