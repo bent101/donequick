@@ -18,6 +18,7 @@
 	import { writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
+	import { hasKeyboard } from "$lib/css-stores";
 
 	export let todos: CollectionStore<Todo> | undefined;
 	export let meta: DocStore<TodoList> | null | undefined;
@@ -309,7 +310,7 @@
 	{/if}
 </ul>
 
-{#if user}
+{#if user && $hasKeyboard}
 	<div
 		class="fixed inset-x-0 bottom-2 mx-auto w-max rounded-full bg-white/80 px-6 py-2 text-sm font-semibold text-gray-400 backdrop-blur-md dark:bg-gray-900/80 dark:text-gray-500"
 	>

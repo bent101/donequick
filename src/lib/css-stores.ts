@@ -2,6 +2,7 @@ import { browser } from "$app/environment";
 import { writable } from "svelte/store";
 
 export const isTouchScreen = mql("(any-pointer: coarse)");
+export const hasKeyboard = mql("(hover: hover) and (pointer: fine)");
 
 export const sm = minWidth(640);
 export const md = minWidth(768);
