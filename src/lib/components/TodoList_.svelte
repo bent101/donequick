@@ -230,15 +230,7 @@
 <svelte:window on:keydown={onWindowKeydown} />
 <svelte:body on:focus={() => (state = "idle")} />
 
-{#if user}
-	<div
-		class="fixed inset-x-0 bottom-2 mx-auto w-max rounded-full bg-white/80 px-6 py-2 text-sm font-semibold text-gray-400 backdrop-blur-md dark:bg-gray-900/80 dark:text-gray-500"
-	>
-		{hint}
-	</div>
-{/if}
-
-<div class="mb-4 flex h-10 select-text items-stretch gap-2">
+<div class="mb-4 mt-8 flex h-10 select-text items-stretch gap-2">
 	<ListTitle {meta} />
 
 	<div class="flex select-none">
@@ -316,3 +308,11 @@
 		{/each}
 	{/if}
 </ul>
+
+{#if user}
+	<div
+		class="fixed inset-x-0 bottom-2 mx-auto w-max rounded-full bg-white/80 px-6 py-2 text-sm font-semibold text-gray-400 backdrop-blur-md dark:bg-gray-900/80 dark:text-gray-500"
+	>
+		{hint}
+	</div>
+{/if}
