@@ -185,7 +185,7 @@
 				on:blur={onInputBlur}
 				on:keydown={onInputKeydown}
 				disabled={todo.done}
-				class="w-full appearance-none border-b-2 {'ref' in todo
+				class="w-full appearance-none rounded-none border-b-2 {'ref' in todo
 					? 'border-transparent'
 					: 'select-none border-gray-300 dark:border-gray-700'} bg-transparent outline-none enabled:text-gray-700 enabled:focus:border-gray-500 disabled:pointer-events-none disabled:text-gray-400 disabled:line-through group-hover:border-gray-300 enabled:group-hover:focus:border-gray-500 dark:enabled:text-gray-300 dark:disabled:text-gray-600 dark:group-hover:border-gray-700 dark:enabled:group-hover:focus:border-gray-500"
 			/>
