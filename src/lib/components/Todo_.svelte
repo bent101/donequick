@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { WithRefAndId } from "$lib/firebase";
 	import type { Todo } from "$lib/models";
-	import { deleteDoc, updateDoc } from "firebase/firestore";
+	import { isShiftDown } from "$lib/stores";
+	import { updateDoc } from "firebase/firestore";
 	import { createEventDispatcher } from "svelte";
-	import { CheckIcon, PlusIcon, SquareIcon, Trash2Icon } from "svelte-feather-icons";
+	import { CheckIcon, PlusIcon, SquareIcon } from "svelte-feather-icons";
 	import type { Writable } from "svelte/store";
 	import Kbd from "./ui/Kbd.svelte";
-	import { isShiftDown } from "$lib/stores";
 
 	export let todo: WithRefAndId<Todo> | Todo;
 	export let id: string;
@@ -47,16 +47,6 @@
 		$focusedTodoId = null;
 	}
 	$: if (todo.done) onExternallyCompleted(); // will also call when you complete a todo, but won't change anything
-
-	function deleteTodo() {
-		if ("ref" in todo) {
-			deleteDoc(todo.ref);
-			dispatch("updated");
-		} else {
-			input = "";
-			todo.content = "";
-		}
-	}
 
 	function onInputKeydown(event: KeyboardEvent) {
 		const { key } = event;
@@ -205,14 +195,5 @@
 				</span>
 			</div>
 		</div>
-
-		<button
-			tabindex="-1"
-			disabled={!("ref" in todo)}
-			on:click|stopPropagation={deleteTodo}
-			class="select-none text-transparent enabled:group-hover:text-gray-400 enabled:group-hover:hover:text-gray-500 enabled:group-[&:has(>input:focus)]:text-gray-400 dark:enabled:group-hover:text-gray-600 dark:enabled:group-hover:hover:text-gray-500 dark:enabled:group-[&:has(>input:focus)]:text-gray-600 [@media(any-hover:none)]:enabled:text-gray-400 [@media(any-hover:none)]:enabled:dark:text-gray-600"
-		>
-			<Trash2Icon />
-		</button>
 	</button>
 </div>

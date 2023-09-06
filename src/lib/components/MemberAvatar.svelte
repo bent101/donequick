@@ -16,6 +16,6 @@
 	<img
 		src={member.photoURL}
 		alt={member.name}
-		class="absolute inset-0 rounded-full group-hover:z-50"
+		class="absolute inset-0 rounded-full bg-gray-100 group-hover:z-50 dark:bg-gray-800"
 	/>
 </div>

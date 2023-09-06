@@ -1,11 +1,10 @@
 <script lang="ts">
 	import ListTitle from "./ListTitle.svelte";
-
 	import MemberAvatar from "./MemberAvatar.svelte";
-
 	import ShareBtn from "./ShareBtn.svelte";
 
 	import { afterNavigate, beforeNavigate } from "$app/navigation";
+	import { hasKeyboard } from "$lib/css-stores";
 	import { newBatch, type CollectionStore, type DocStore } from "$lib/firebase";
 	import { createTodo, type Todo, type TodoList } from "$lib/models";
 	import { randomNums } from "$lib/random-nums";
@@ -18,7 +17,6 @@
 	import { writable } from "svelte/store";
 	import { fly } from "svelte/transition";
 	import Todo_ from "./Todo_.svelte";
-	import { hasKeyboard } from "$lib/css-stores";
 
 	export let todos: CollectionStore<Todo> | undefined;
 	export let meta: DocStore<TodoList> | null | undefined;
@@ -267,7 +265,7 @@
 			/>
 		</label>
 	{:else}
-		<div class="mb-[29px] h-3 w-32 rounded-full bg-gray-200 dark:bg-gray-800" />
+		<div class="mb-[29px] h-3 w-32 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
 	{/if}
 </div>
 
@@ -291,7 +289,7 @@
 	{:else}
 		{@const n = 10}
 		{#each { length: n } as _, i}
-			<div style="opacity: {100 - (100 / n) * i}%">
+			<div class="animate-pulse" style="opacity: {100 - (100 / n) * i}%">
 				<div class="ml-2 flex h-8 items-center gap-2">
 					{#if i === 0}
 						<PlusIcon class="h-full text-gray-200 dark:text-gray-800" />

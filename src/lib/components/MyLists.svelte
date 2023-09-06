@@ -111,7 +111,7 @@
 	{:else}
 		{@const n = 5}
 		{#each { length: n } as _, i}
-			<div style="opacity: {100 - (100 / n) * i}%">
+			<div class="animate-pulse" style="opacity: {100 - (100 / n) * i}%">
 				<div class="mx-4 my-6 h-5 rounded-full bg-gray-300 dark:bg-gray-800" />
 			</div>
 		{/each}

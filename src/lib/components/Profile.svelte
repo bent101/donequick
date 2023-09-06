@@ -31,7 +31,7 @@
 		</div>
 	</div>
 {:else}
-	<div class="flex h-12 items-center gap-3">
+	<div class="flex h-12 animate-pulse items-center gap-3">
 		<div class="h-12 w-12 rounded-full bg-gray-300 dark:bg-gray-700" />
 		<div class="flex flex-col justify-center">
 			<div class="h-3 w-36 rounded-full bg-gray-300 dark:bg-gray-700" />
