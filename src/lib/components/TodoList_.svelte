@@ -310,7 +310,7 @@
 
 {#if user && $hasKeyboard}
 	<div
-		class="fixed inset-x-0 bottom-2 mx-auto w-max rounded-full bg-white/80 px-6 py-2 text-sm font-semibold text-gray-400 backdrop-blur-md dark:bg-gray-900/80 dark:text-gray-500"
+		class="fixed inset-x-0 top-2 mx-auto w-max rounded-full bg-white/70 px-6 py-2 text-sm font-semibold text-gray-400 backdrop-blur-sm dark:bg-gray-900/70 dark:text-gray-500"
 	>
 		{hint}
 	</div>
